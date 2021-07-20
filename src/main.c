@@ -30,5 +30,7 @@ int main(int argc, char **argv) {
     return -1;
   }
 
+  printf("Using nDPI (%s).\n", ndpi_revision());
+
   return 0;
 }
