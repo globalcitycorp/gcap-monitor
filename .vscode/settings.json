@@ -3,5 +3,6 @@
         "../nDPI/src/include",
         "../nDPI/example"
     ],
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "git.autoRepositoryDetection": "subFolders"
 }
