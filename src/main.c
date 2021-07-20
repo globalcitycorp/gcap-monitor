@@ -36,7 +36,7 @@ typedef struct Config {
 static void parse_options(int argc, char **argv, struct Config *cnf);
 
 int main(int argc, char **argv) {
-  Config cnf = {.interface = "\n", .num_threads = 1};
+  Config cnf = {.interface = "", .num_threads = 1};
 
   if (ndpi_get_api_version() != NDPI_API_VERSION) {
     printf("nDPI Library version mismatch: "
@@ -47,6 +47,10 @@ int main(int argc, char **argv) {
   printf("Using nDPI (%s).\n", ndpi_revision());
 
   parse_options(argc, argv, &cnf);
+  if (strcmp(cnf.interface, "") == 0) {
+    printf("Please specify interface!\n");
+    return -1;
+  }
 
   printf("Listening interface %s with %d thread(s).\n", cnf.interface,
          cnf.num_threads);
@@ -79,6 +83,7 @@ void parse_options(int argc, char **argv, struct Config *cnf) {
         num_threads = MAX_NUM_READER_THREADS;
       }
       cnf->num_threads = num_threads;
+      break;
     }
   }
   return;
