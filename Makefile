@@ -17,3 +17,6 @@ $(PROGRAM): $(HEADERS) $(OBJECTS) src/main.c
 
 run: $(PROGRAM)
 	$(PROGRAM)
+
+clean:
+	rm -f $(PROGRAM) ./src/*.o
