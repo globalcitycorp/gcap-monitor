@@ -23,13 +23,12 @@
 
 #include "ndpi_api.h"
 
-int main(int argc, char **argv)
-{
-    if (ndpi_get_api_version() != NDPI_API_VERSION)
-    {
-        printf("nDPI Library version mismatch: please make sure this code and the nDPI library are in sync\n");
-        return (-1);
-    }
+int main(int argc, char **argv) {
+  if (ndpi_get_api_version() != NDPI_API_VERSION) {
+    printf("nDPI Library version mismatch: "
+           "please make sure this code and the nDPI library are in sync\n");
+    return -1;
+  }
 
-    return 0;
+  return 0;
 }
