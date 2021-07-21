@@ -28,15 +28,15 @@
 
 #define MAX_NUM_READER_THREADS 16
 
-typedef struct Config {
+typedef struct gcap_config {
   char *interface;
   u_int8_t num_threads;
-} Config;
+} gcap_config_t;
 
-static void parse_options(int argc, char **argv, struct Config *cnf);
+static void parse_options(int argc, char **argv, gcap_config_t *cnf);
 
 int main(int argc, char **argv) {
-  Config cnf = {.interface = "", .num_threads = 1};
+  gcap_config_t cnf = {.interface = "", .num_threads = 1};
 
   if (ndpi_get_api_version() != NDPI_API_VERSION) {
     printf("nDPI Library version mismatch: "
@@ -67,7 +67,7 @@ static struct option long_opts[] = {
 /**
  * Parse options
  */
-void parse_options(int argc, char **argv, struct Config *cnf) {
+void parse_options(int argc, char **argv, gcap_config_t *cnf) {
   int option_idx = 0;
   int opt;
   int num_threads;
