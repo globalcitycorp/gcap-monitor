@@ -29,33 +29,33 @@
 #define MAX_NUM_READER_THREADS 16
 
 typedef struct gcap_config {
-  char *interface;
-  u_int8_t num_threads;
+    char *interface;
+    u_int8_t num_threads;
 } gcap_config_t;
 
 static void parse_options(int argc, char **argv, gcap_config_t *cnf);
 
 int main(int argc, char **argv) {
-  gcap_config_t cnf = {.interface = "", .num_threads = 1};
+    gcap_config_t cnf = {.interface = "", .num_threads = 1};
 
-  if (ndpi_get_api_version() != NDPI_API_VERSION) {
-    printf("nDPI Library version mismatch: "
-           "please make sure this code and the nDPI library are in sync\n");
-    return -1;
-  }
+    if (ndpi_get_api_version() != NDPI_API_VERSION) {
+        printf("nDPI Library version mismatch: "
+               "please make sure this code and the nDPI library are in sync\n");
+        return -1;
+    }
 
-  printf("Using nDPI (%s).\n", ndpi_revision());
+    printf("Using nDPI (%s).\n", ndpi_revision());
 
-  parse_options(argc, argv, &cnf);
-  if (strcmp(cnf.interface, "") == 0) {
-    printf("Please specify interface!\n");
-    return -1;
-  }
+    parse_options(argc, argv, &cnf);
+    if (strcmp(cnf.interface, "") == 0) {
+        printf("Please specify interface!\n");
+        return -1;
+    }
 
-  printf("Listening interface %s with %d thread(s).\n", cnf.interface,
-         cnf.num_threads);
+    printf("Listening interface %s with %d thread(s).\n", cnf.interface,
+           cnf.num_threads);
 
-  return 0;
+    return 0;
 }
 
 static struct option long_opts[] = {
@@ -68,23 +68,23 @@ static struct option long_opts[] = {
  * Parse options
  */
 void parse_options(int argc, char **argv, gcap_config_t *cnf) {
-  int option_idx = 0;
-  int opt;
-  int num_threads;
-  while ((opt = getopt_long(argc, argv, "i:n:", long_opts, &option_idx)) !=
-         EOF) {
-    switch (opt) {
-    case 'i':
-      cnf->interface = optarg;
-      break;
-    case 'n':
-      num_threads = atoi(optarg);
-      if (num_threads > MAX_NUM_READER_THREADS) {
-        num_threads = MAX_NUM_READER_THREADS;
-      }
-      cnf->num_threads = num_threads;
-      break;
+    int option_idx = 0;
+    int opt;
+    int num_threads;
+    while ((opt = getopt_long(argc, argv, "i:n:", long_opts, &option_idx)) !=
+           EOF) {
+        switch (opt) {
+        case 'i':
+            cnf->interface = optarg;
+            break;
+        case 'n':
+            num_threads = atoi(optarg);
+            if (num_threads > MAX_NUM_READER_THREADS) {
+                num_threads = MAX_NUM_READER_THREADS;
+            }
+            cnf->num_threads = num_threads;
+            break;
+        }
     }
-  }
-  return;
+    return;
 }

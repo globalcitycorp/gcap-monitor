@@ -2,5 +2,5 @@
     BasedOnStyle: LLVM,
     BreakBeforeBraces: Attach,
     SpaceBeforeParens: ControlStatements,
-    IndentWidth: 2,
+    IndentWidth: 4,
 }
