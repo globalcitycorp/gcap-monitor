@@ -62,4 +62,27 @@ Processor *Processor::OpenPcapFile(const char *pcap_file) {
     p->pcap_handle_ = pcap_handle;
     return p;
 }
+
+Processor *Processor::OpenDevice(const char *device) {
+    Processor *p = new Processor();
+    if (p->ndpi_module_ == NULL) {
+        return NULL;
+    }
+    pcap_t *pcap_handle;
+    int snaplen = 1536;
+    int promisc = 1;
+    int timeout_ms = 500;
+    char pcap_error_buffer[PCAP_ERRBUF_SIZE];
+    pcap_handle =
+        pcap_open_live(device, snaplen, promisc, timeout_ms, pcap_error_buffer);
+    if (pcap_handle == NULL) {
+        LogDebug("pcap_open_offline() error: %s", pcap_error_buffer);
+        delete p;
+        return NULL;
+    }
+    LogDebug("reading packets from pcap file %s...", pcap_file);
+    p->pcap_handle_ = pcap_handle;
+    return p;
+}
+
 } // namespace gcap
