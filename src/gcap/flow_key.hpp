@@ -20,6 +20,8 @@
  * along with nDPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifndef __GCAP_FLOW_KEY_H__
+#define __GCAP_FLOW_KEY_H__
 
 #include "ndpi_api.h"
 
@@ -30,6 +32,9 @@ namespace gcap {
  */
 class FlowKey {
   public:
+    /**
+     * Constructor
+     */
     FlowKey(u_int16_t vlan_id, u_int8_t l4_proto, u_int32_t src_ip,
             u_int16_t src_port, u_int32_t dst_ip, u_int16_t dst_port)
         : vlan_id_(vlan_id), l4_proto_(l4_proto), src_ip_(src_ip),
@@ -37,6 +42,11 @@ class FlowKey {
         hash_ = vlan_id + l4_proto + src_ip + dst_ip + src_port + dst_port;
     }
 
+    /**
+     * Comparer
+     *
+     * This is for using the instance as key in std::map.
+     */
     bool operator<(const FlowKey &r);
 
   private:
@@ -112,3 +122,5 @@ bool FlowKey::operator<(const FlowKey &r) {
 }
 
 } // namespace gcap
+
+#endif

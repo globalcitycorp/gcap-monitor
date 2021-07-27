@@ -1,5 +1,5 @@
 /*
- * main.c
+ * main.cpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.

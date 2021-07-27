@@ -1,5 +1,5 @@
 /*
- * processor.hpp
+ * gcap_thread.h
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -21,51 +21,13 @@
  *
  */
 
-#ifndef __GCAP_PROCESSOR_H__
-#define __GCAP_PROCESSOR_H__
+#include "gcap/flow_data.hpp"
+#include "gcap/flow_key.hpp"
+#include "gcap/processor.hpp"
+#include <map>
 
-#include "ndpi_api.h"
-#include <pcap.h>
-
-namespace gcap {
-
-/**
- * Pcap processor
- */
-class Processor {
-  public:
-    /**
-     * Open pcap file and return processor.
-     */
-    static Processor *OpenPcapFile(const char *pcap_file);
-
-    /**
-     * Open and listen network device and return processor.
-     */
-    static Processor *OpenDevice(const char *device);
-
-    /**
-     * Destructor
-     */
-    ~Processor();
-
-  private:
-    /**
-     * Constructor is private
-     */
-    Processor();
-
-    /**
-     * pcap handle
-     */
-    pcap_t *pcap_handle_;
-
-    /**
-     * nDPI detection module
-     */
-    struct ndpi_detection_module_struct *ndpi_module_;
-};
-
-} // namespace gcap
-
-#endif
+typedef struct ThreadArgStruct {
+    u_int32_t thread_id;
+    gcap::Processor *processor;
+    std::map<gcap::FlowKey, gcap::FlowData> *shared_flow_map;
+} ThreadArg;

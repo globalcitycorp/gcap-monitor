@@ -21,7 +21,11 @@
  *
  */
 
+#ifndef __GCAP_FLOW_DATA_H__
+#define __GCAP_FLOW_DATA_H__
+
 #include "ndpi_api.h"
+#include <pthread.h>
 
 namespace gcap {
 
@@ -30,7 +34,25 @@ namespace gcap {
  */
 class FlowData {
   public:
+    /**
+     * Destructor
+     */
+    ~FlowData() { pthread_mutex_destroy(&mutex_); }
+
+    /**
+     * Lock flow
+     */
+    void Lock() { pthread_mutex_lock(&mutex_); }
+
+    /**
+     * Unlock flow
+     */
+    void Unlock() { pthread_mutex_unlock(&mutex_); }
+
   private:
+    /**
+     * Constructor
+     */
     FlowData() {
         vlan_id_ = 0;
         l4_proto_ = 0;
@@ -40,6 +62,7 @@ class FlowData {
         dst_port_ = 0;
         src2dst_bytes_ = 0;
         dst2src_bytes_ = 0;
+        mutex_ = PTHREAD_MUTEX_INITIALIZER;
     }
 
     /**
@@ -85,7 +108,7 @@ class FlowData {
     /**
      * nDPI flow struct
      */
-    struct ndpi_frow_struct *ndpiFlow;
+    struct ndpi_frow_struct *ndpi_flow_;
 
     /**
      * Source
@@ -96,6 +119,13 @@ class FlowData {
      * Destination
      */
     struct ndpi_id_struct *dst_;
+
+    /**
+     * Mutex
+     */
+    pthread_mutex_t mutex_;
 };
 
 } // namespace gcap
+
+#endif
