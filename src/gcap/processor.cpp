@@ -31,7 +31,7 @@ namespace gcap {
 Processor::Processor() {
     ndpi_module_ = ndpi_init_detection_module(ndpi_enable_ja3_plus);
     if (ndpi_module_ == NULL) {
-        log_error("ndpi_init_detection_module() error!");
+        LogDebug("ndpi_init_detection_module() error!");
     }
     pcap_handle_ = NULL;
 }
@@ -45,7 +45,7 @@ Processor::~Processor() {
     }
 }
 
-Processor *Processor::openPcapFile(const char *pcap_file) {
+Processor *Processor::OpenPcapFile(const char *pcap_file) {
     Processor *p = new Processor();
     if (p->ndpi_module_ == NULL) {
         return NULL;
@@ -54,11 +54,11 @@ Processor *Processor::openPcapFile(const char *pcap_file) {
     char pcap_error_buffer[PCAP_ERRBUF_SIZE];
     pcap_handle = pcap_open_offline(pcap_file, pcap_error_buffer);
     if (pcap_handle == NULL) {
-        log_error("pcap_open_offline() error: %s", pcap_error_buffer);
+        LogDebug("pcap_open_offline() error: %s", pcap_error_buffer);
         delete p;
         return NULL;
     }
-    log_debug("reading packets from pcap file %s...", pcap_file);
+    LogDebug("reading packets from pcap file %s...", pcap_file);
     p->pcap_handle_ = pcap_handle;
     return p;
 }

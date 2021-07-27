@@ -1,7 +1,7 @@
 #include "util.h"
 #include <stdio.h>
 
-void log_debug(const char *format, ...) {
+void LogDebug(const char *format, ...) {
     va_list args;
     va_start(args, format);
     printf("[DEBUG] ");
@@ -10,7 +10,7 @@ void log_debug(const char *format, ...) {
     return;
 }
 
-void log_error(const char *format, ...) {
+void LogDebug(const char *format, ...) {
     va_list args;
     va_start(args, format);
     printf("[ERROR] ");

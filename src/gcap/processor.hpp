@@ -34,12 +34,12 @@ class Processor {
     /**
      * Open pcap file and return processor.
      */
-    static Processor *openPcapFile(const char *pcap_file);
+    static Processor *OpenPcapFile(const char *pcap_file);
 
     /**
      * Open and listen network device and return processor.
      */
-    static Processor *openDevice(const char *device);
+    static Processor *OpenDevice(const char *device);
 
     /**
      * Destructor

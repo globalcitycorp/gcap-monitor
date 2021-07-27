@@ -7,12 +7,12 @@
  * Log debug message.
  * @param format message
  */
-void log_debug(const char *format, ...);
+void LogDebug(const char *format, ...);
 
 /**
  * Log error message.
  * @param format message
  */
-void log_error(const char *format, ...);
+void LogDebug(const char *format, ...);
 
 #endif
