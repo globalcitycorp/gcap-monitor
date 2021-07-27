@@ -5,14 +5,14 @@
 
 /**
  * Log debug message.
- * @param text message
+ * @param format message
  */
-void log_debug(char *text);
+void log_debug(const char *format, ...);
 
 /**
  * Log error message.
- * @param text message
+ * @param format message
  */
-void log_error(char *text);
+void log_error(const char *format, ...);
 
 #endif
