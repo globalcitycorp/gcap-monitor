@@ -30,13 +30,14 @@
 
 typedef struct gcap_config {
     char *interface;
+    char *pcap_file;
     u_int8_t num_threads;
 } gcap_config_t;
 
 static void parse_options(int argc, char **argv, gcap_config_t *cnf);
 
 int main(int argc, char **argv) {
-    gcap_config_t cnf = {.interface = "", .num_threads = 1};
+    gcap_config_t cnf = {.interface = "", .pcap_file = "", .num_threads = 1};
 
     if (ndpi_get_api_version() != NDPI_API_VERSION) {
         printf("nDPI Library version mismatch: "
@@ -60,6 +61,7 @@ int main(int argc, char **argv) {
 
 static struct option long_opts[] = {
     {"interface", required_argument, NULL, 'i'},
+    {"pcapfile", required_argument, NULL, 'p'},
     {"num-threads", required_argument, NULL, 'n'},
 
     {0, 0, 0, 0}};
@@ -71,11 +73,14 @@ void parse_options(int argc, char **argv, gcap_config_t *cnf) {
     int option_idx = 0;
     int opt;
     int num_threads;
-    while ((opt = getopt_long(argc, argv, "i:n:", long_opts, &option_idx)) !=
+    while ((opt = getopt_long(argc, argv, "i:p:n:", long_opts, &option_idx)) !=
            EOF) {
         switch (opt) {
         case 'i':
             cnf->interface = optarg;
+            break;
+        case 'p':
+            cnf->pcap_file = optarg;
             break;
         case 'n':
             num_threads = atoi(optarg);
