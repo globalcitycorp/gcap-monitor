@@ -35,21 +35,20 @@ class IpFlowKey {
     /**
      * Constructor
      */
-    IpFlowKey(u_int16_t vlan_id, u_int8_t l4_proto, u_int32_t src_ip,
-              u_int16_t src_port, u_int32_t dst_ip, u_int16_t dst_port)
-        : vlan_id_(vlan_id), l4_proto_(l4_proto), src_ip_(src_ip),
-          src_port_(src_port), dst_ip_(dst_ip), dst_port_(dst_port) {
-        hash_ = vlan_id + l4_proto + src_ip + dst_ip + src_port + dst_port;
+    IpFlowKey(u_int16_t vlan_id, u_int32_t src_ip, u_int16_t src_port,
+              u_int32_t dst_ip, u_int16_t dst_port)
+        : vlan_id_(vlan_id), src_ip_(src_ip), src_port_(src_port),
+          dst_ip_(dst_ip), dst_port_(dst_port) {
+        hash_ = vlan_id + src_ip + dst_ip + src_port + dst_port;
     }
 
     /**
      * Copy constructor
      */
     IpFlowKey(const IpFlowKey &k)
-        : vlan_id_(k.vlan_id_), l4_proto_(k.l4_proto_), src_ip_(k.src_ip_),
-          src_port_(k.src_port_), dst_ip_(k.dst_ip_), dst_port_(dst_port_) {
-        hash_ = k.vlan_id_ + k.l4_proto_ + k.src_ip_ + k.dst_ip_ + k.src_port_ +
-                k.dst_port_;
+        : vlan_id_(k.vlan_id_), src_ip_(k.src_ip_), src_port_(k.src_port_),
+          dst_ip_(k.dst_ip_), dst_port_(dst_port_) {
+        hash_ = k.vlan_id_ + k.src_ip_ + k.dst_ip_ + k.src_port_ + k.dst_port_;
     }
 
     /**
@@ -60,8 +59,6 @@ class IpFlowKey {
     bool operator<(const IpFlowKey &r);
 
     inline u_int16_t GetVlanId() const { return vlan_id_; }
-
-    inline u_int8_t GetL4Proto() const { return l4_proto_; }
 
     inline u_int32_t GetSrcIp() const { return src_ip_; }
 
@@ -76,11 +73,6 @@ class IpFlowKey {
      * VLAN id
      */
     u_int16_t vlan_id_;
-
-    /**
-     * L4 protocol
-     */
-    u_int8_t l4_proto_;
 
     /**
      * Source IP address
@@ -117,9 +109,6 @@ bool IpFlowKey::operator<(const IpFlowKey &r) {
     }
     if (vlan_id_ != r.vlan_id_) {
         return vlan_id_ < r.vlan_id_;
-    }
-    if (l4_proto_ != r.l4_proto_) {
-        return l4_proto_ < r.l4_proto_;
     }
     bool same = (src_ip_ == r.src_ip_ && src_port_ == r.src_port_ &&
                  dst_ip_ == r.dst_ip_ && dst_port_ == r.dst_port_);

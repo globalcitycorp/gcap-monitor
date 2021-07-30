@@ -24,6 +24,8 @@
 #ifndef __GCAP_PCAP_FILE_PROCESSOR_H__
 #define __GCAP_PCAP_FILE_PROCESSOR_H__
 
+#include "flow_store.hpp"
+#include "host_store.hpp"
 #include "ndpi_api.h"
 #include <PcapFileDevice.h>
 
@@ -38,6 +40,13 @@ class PcapFileProcessor {
      * Open pcap file and return processor.
      */
     static PcapFileProcessor *Open(const char *pcap_file);
+
+    /**
+     * Process packets
+     *
+     * @return 0 if process ended successfully.
+     */
+    int Process();
 
     /**
      * Destructor
@@ -59,6 +68,16 @@ class PcapFileProcessor {
      * nDPI detection module
      */
     struct ndpi_detection_module_struct *ndpi_module_;
+
+    /**
+     * Flow store
+     */
+    FlowStore flow_store_;
+
+    /**
+     * Host store
+     */
+    HostStore host_store_;
 };
 
 } // namespace gcap

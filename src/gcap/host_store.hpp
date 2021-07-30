@@ -1,5 +1,5 @@
 /*
- * flow_store.cpp
+ * host_store.cpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -20,47 +20,49 @@
  * along with nDPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifndef __GCAP_FLOW_STORE_H__
-#define __GCAP_FLOW_STORE_H__
+#ifndef __GCAP_HOST_STORE_H__
+#define __GCAP_HOST_STORE_H__
 
-#include "flow/ip4_tcp_flow.hpp"
-#include "ip_flow_key.hpp"
-#include <map>
+#include "ndpi_api.h"
 #include <memory>
+#include <unordered_map>
 
 namespace gcap {
 
-class FlowStore {
+/**
+ * Stores ndpi_id_struct
+ *
+ */
+class HostStore {
   public:
     /**
      * Constructor
      */
-    FlowStore() {}
+    HostStore() {}
 
     /**
      * Get ipv4 tcp flow
      */
-    inline Ip4TcpFlow *GetIp4TcpFlow(const IpFlowKey &key);
+    inline ndpi_id_struct *GetIp4Host(const uint32_t &ip);
 
   private:
     /**
-     * TCP flow map
+     * IPv4 host map
      */
-    std::map<IpFlowKey, std::unique_ptr<Ip4TcpFlow>> tcp_flow_map_;
+    std::unordered_map<uint32_t, std::unique_ptr<ndpi_id_struct>> ip4_host_map_;
 };
 
-Ip4TcpFlow *FlowStore::GetIp4TcpFlow(const IpFlowKey &key) {
-    if (tcp_flow_map_.count(key) == 1) {
-        return tcp_flow_map_.at(key).get();
+ndpi_id_struct *HostStore::GetIp4Host(const uint32_t &ip) {
+    auto itr = ip4_host_map_.find(ip);
+    if (itr != ip4_host_map_.end()) {
+        return itr->second.get();
     }
-    Ip4TcpFlow *raw_ptr =
-        new Ip4TcpFlow(key.GetVlanId(), key.GetSrcIp(), key.GetDstIp(),
-                       key.GetSrcPort(), key.GetDstPort());
+    ndpi_id_struct *raw_ptr = (ndpi_id_struct *)calloc(1, SIZEOF_ID_STRUCT);
     if (raw_ptr == NULL) {
         return NULL;
     }
-    std::unique_ptr<Ip4TcpFlow> ptr(raw_ptr);
-    auto ret = tcp_flow_map_.insert(make_pair(key, ptr));
+    std::unique_ptr<ndpi_id_struct> ptr(raw_ptr);
+    auto ret = ip4_host_map_.insert(make_pair(ip, ptr));
     if (ret.second == false) {
         return NULL;
     }

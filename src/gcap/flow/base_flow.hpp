@@ -23,6 +23,7 @@
 #ifndef __GCAP_BASE_FLOW_H__
 #define __GCAP_BASE_FLOW_H__
 
+#include "ndpi_api.h"
 #include <Packet.h>
 
 namespace gcap {
@@ -33,7 +34,7 @@ namespace gcap {
 class BaseFlow {
 
   public:
-    virtual bool ProcessPacket(pcpp::Packet pkt);
+    virtual ~BaseFlow() {}
 
   protected:
     /**
@@ -77,12 +78,22 @@ class BaseFlow {
     u_int16_t vlan_id_;
 
     /**
+     * nDPI flow struct
+     */
+    ndpi_flow_struct ndpi_flow_;
+
+    /**
+     * Detected protocol
+     */
+    ndpi_protocol detected_protocol_;
+
+    /**
      * Common process
      */
-    inline bool ProcessPacketCommon(pcpp::Packet pkt, bool is_src2dst);
+    inline bool ProcessPacketCommon(const pcpp::Packet &pkt, bool is_src2dst);
 };
 
-bool BaseFlow::ProcessPacketCommon(pcpp::Packet pkt, bool is_src2dst) {
+bool BaseFlow::ProcessPacketCommon(const pcpp::Packet &pkt, bool is_src2dst) {
     timespec ts = pkt.getRawPacket()->getPacketTimeStamp();
     if (first_pkt_ts_.tv_sec == 0 && first_pkt_ts_.tv_nsec == 0) {
         first_pkt_ts_ = ts;

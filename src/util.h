@@ -13,6 +13,6 @@ void LogDebug(const char *format, ...);
  * Log error message.
  * @param format message
  */
-void LogDebug(const char *format, ...);
+void LogError(const char *format, ...);
 
 #endif
