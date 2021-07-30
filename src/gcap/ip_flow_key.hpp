@@ -1,5 +1,5 @@
 /*
- * flow_key.cpp
+ * ip_flow_key.cpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -20,26 +20,36 @@
  * along with nDPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifndef __GCAP_FLOW_KEY_H__
-#define __GCAP_FLOW_KEY_H__
+#ifndef __GCAP_IP_FLOW_KEY_H__
+#define __GCAP_IP_FLOW_KEY_H__
 
 #include "ndpi_api.h"
 
 namespace gcap {
 
 /**
- * Flow key
+ * Flow key for TCP/UDP flows
  */
-class FlowKey {
+class IpFlowKey {
   public:
     /**
      * Constructor
      */
-    FlowKey(u_int16_t vlan_id, u_int8_t l4_proto, u_int32_t src_ip,
-            u_int16_t src_port, u_int32_t dst_ip, u_int16_t dst_port)
+    IpFlowKey(u_int16_t vlan_id, u_int8_t l4_proto, u_int32_t src_ip,
+              u_int16_t src_port, u_int32_t dst_ip, u_int16_t dst_port)
         : vlan_id_(vlan_id), l4_proto_(l4_proto), src_ip_(src_ip),
           src_port_(src_port), dst_ip_(dst_ip), dst_port_(dst_port) {
         hash_ = vlan_id + l4_proto + src_ip + dst_ip + src_port + dst_port;
+    }
+
+    /**
+     * Copy constructor
+     */
+    IpFlowKey(const IpFlowKey &k)
+        : vlan_id_(k.vlan_id_), l4_proto_(k.l4_proto_), src_ip_(k.src_ip_),
+          src_port_(k.src_port_), dst_ip_(k.dst_ip_), dst_port_(dst_port_) {
+        hash_ = k.vlan_id_ + k.l4_proto_ + k.src_ip_ + k.dst_ip_ + k.src_port_ +
+                k.dst_port_;
     }
 
     /**
@@ -47,7 +57,19 @@ class FlowKey {
      *
      * This is for using the instance as key in std::map.
      */
-    bool operator<(const FlowKey &r);
+    bool operator<(const IpFlowKey &r);
+
+    inline u_int16_t GetVlanId() const { return vlan_id_; }
+
+    inline u_int8_t GetL4Proto() const { return l4_proto_; }
+
+    inline u_int32_t GetSrcIp() const { return src_ip_; }
+
+    inline u_int32_t GetDstIp() const { return dst_ip_; }
+
+    inline u_int16_t GetSrcPort() const { return src_port_; }
+
+    inline u_int16_t GetDstPort() const { return dst_port_; }
 
   private:
     /**
@@ -89,7 +111,7 @@ class FlowKey {
 /**
  * Operator <
  */
-bool FlowKey::operator<(const FlowKey &r) {
+bool IpFlowKey::operator<(const IpFlowKey &r) {
     if (hash_ != r.hash_) {
         return hash_ < r.hash_;
     }
