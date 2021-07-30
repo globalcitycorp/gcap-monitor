@@ -23,9 +23,7 @@
 #include "base_flow.hpp"
 #include <Packet.h>
 
-gcap::BaseFlow::BaseFlow() {
-    first_pkt_ts = {0, 0};
-    last_pkt_ts = {0, 0};
-    src2dst_pkt_count = 0;
-    dst2src_pkt_count = 0;
+gcap::BaseFlow::BaseFlow()
+    : first_pkt_ts_({0, 0}), last_pkt_ts_({0, 0}), src2dst_pkt_count_(0),
+      dst2src_pkt_count_(0), src2dst_bytes_(0), dst2src_bytes_(0), vlan_id_(0) {
 }
