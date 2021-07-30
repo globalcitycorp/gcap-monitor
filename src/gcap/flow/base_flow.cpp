@@ -1,0 +1,31 @@
+/*
+ * base_flow.cpp
+ * Copyright (C) 2021-21 - Globalciy, Corp.
+ *
+ * This project is using nDPI.
+ *
+ * Copyright (C) 2011-21 - ntop.org
+ *
+ * nDPI is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * nDPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with nDPI.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+#include "base_flow.hpp"
+#include <Packet.h>
+
+gcap::BaseFlow::BaseFlow() {
+    first_pkt_ts = {0, 0};
+    last_pkt_ts = {0, 0};
+    src2dst_pkt_count = 0;
+    dst2src_pkt_count = 0;
+}
