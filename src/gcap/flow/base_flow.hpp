@@ -25,6 +25,7 @@
 
 #include "ndpi_api.h"
 #include <Packet.h>
+#include <iostream>
 
 namespace gcap {
 
@@ -34,7 +35,64 @@ namespace gcap {
 class BaseFlow {
 
   public:
-    virtual ~BaseFlow() {}
+    virtual ~BaseFlow() { std::cout << "=BaseFlow()" << std::endl; }
+
+    /**
+     * Get nDPI category name
+     */
+    inline const char *
+    GetCategoryName(ndpi_detection_module_struct *ndpi_module) {
+        return ndpi_category_get_name(ndpi_module, detected_protocol_.category);
+    }
+
+    /**
+     * Get nDPI master protocol name
+     */
+    inline const char *
+    GetMasterProtocolName(ndpi_detection_module_struct *ndpi_module) {
+        return ndpi_get_proto_name(ndpi_module,
+                                   detected_protocol_.master_protocol);
+    }
+
+    /**
+     * Get nDPI app protocol name
+     */
+    const char *GetAppProtocolName(ndpi_detection_module_struct *ndpi_module) {
+        return ndpi_get_proto_name(ndpi_module,
+                                   detected_protocol_.app_protocol);
+    }
+
+    /**
+     * Get count of packets from source to destination direction
+     */
+    inline uint16_t GetSrc2DstPktCount() { return src2dst_pkt_count_; }
+
+    /**
+     * Get count of packets from destination to source direction
+     */
+    inline uint16_t GetDst2SrcPktCount() { return dst2src_pkt_count_; }
+
+    /**
+     * Get count of all packets in the flow
+     */
+    inline uint16_t GetPktCount() {
+        return src2dst_pkt_count_ + dst2src_pkt_count_;
+    }
+
+    /**
+     * Get bytes from source to destination direction
+     */
+    inline uint64_t GetSrc2DstBytes() { return src2dst_bytes_; }
+
+    /**
+     * Get bytes from destination to source direction
+     */
+    inline uint64_t GetDst2SrcBytes() { return dst2src_bytes_; }
+
+    /**
+     * Get bytes of the flow
+     */
+    inline uint16_t GetBytes() { return src2dst_bytes_ + dst2src_bytes_; }
 
   protected:
     /**

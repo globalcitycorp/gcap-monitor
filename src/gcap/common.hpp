@@ -1,5 +1,5 @@
 /*
- * host_store.hpp
+ * common.hpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -20,36 +20,15 @@
  * along with nDPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifndef __GCAP_HOST_STORE_H__
-#define __GCAP_HOST_STORE_H__
+#ifndef __GCAP_COMMON_H__
+#define __GCAP_COMMON_H__
 
-#include "common.hpp"
-#include <unordered_map>
+#include "ndpi_api.h"
+#include <memory>
 
 namespace gcap {
 
-/**
- * Stores ndpi_id_struct
- *
- */
-class HostStore {
-  public:
-    /**
-     * Constructor
-     */
-    HostStore() {}
-
-    /**
-     * Get ipv4 tcp flow
-     */
-    HostPtr GetIp4Host(const uint32_t &ip);
-
-  private:
-    /**
-     * IPv4 host map
-     */
-    std::unordered_map<uint32_t, HostPtr> ip4_host_map_;
-};
+using HostPtr = std::shared_ptr<ndpi_id_struct>;
 
 } // namespace gcap
 

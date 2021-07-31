@@ -1,5 +1,5 @@
 /*
- * flow_store.cpp
+ * flow_store.hpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -23,8 +23,10 @@
 #ifndef __GCAP_FLOW_STORE_H__
 #define __GCAP_FLOW_STORE_H__
 
+#include "common.hpp"
 #include "flow/ip4_tcp_flow.hpp"
 #include "ip_flow_key.hpp"
+#include "logger.hpp"
 #include <map>
 #include <memory>
 
@@ -40,31 +42,21 @@ class FlowStore {
     /**
      * Get ipv4 tcp flow
      */
-    inline Ip4TcpFlow *GetIp4TcpFlow(const IpFlowKey &key);
+    Ip4TcpFlowPtr GetIp4TcpFlow(const IpFlowKey &key);
+
+    /**
+     * Get map object
+     */
+    const std::map<IpFlowKey, Ip4TcpFlowPtr> &GetIp4TcpMap();
 
   private:
     /**
      * TCP flow map
      */
-    std::map<IpFlowKey, std::unique_ptr<Ip4TcpFlow>> tcp_flow_map_;
-};
+    std::map<IpFlowKey, Ip4TcpFlowPtr> tcp_flow_map_;
 
-Ip4TcpFlow *FlowStore::GetIp4TcpFlow(const IpFlowKey &key) {
-    if (tcp_flow_map_.count(key) == 1) {
-        return tcp_flow_map_.at(key).get();
-    }
-    Ip4TcpFlow *raw_ptr = new Ip4TcpFlow(key.vlan_id_, key.src_ip_, key.dst_ip_,
-                                         key.src_port_, key.dst_port_);
-    if (raw_ptr == NULL) {
-        return NULL;
-    }
-    std::unique_ptr<Ip4TcpFlow> ptr(raw_ptr);
-    auto ret = tcp_flow_map_.insert(std::make_pair(key, std::move(ptr)));
-    if (ret.second == false) {
-        return NULL;
-    }
-    return raw_ptr;
-}
+    Logger logger_;
+};
 
 } // namespace gcap
 

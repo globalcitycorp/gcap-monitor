@@ -23,6 +23,7 @@
 #ifndef __IP4_TCP_FLOW_H__
 #define __IP4_TCP_FLOW_H__
 
+#include "../common.hpp"
 #include "base_flow.hpp"
 #include <IPv4Layer.h>
 #include <Packet.h>
@@ -45,8 +46,8 @@ class Ip4TcpFlow : public BaseFlow {
 
     bool ProcessPacket(ndpi_detection_module_struct *ndpi_module,
                        const pcpp::Packet &pkt, pcpp::IPv4Layer *ipv4_layer,
-                       pcpp::TcpLayer *tcp_layer, struct ndpi_id_struct *src,
-                       struct ndpi_id_struct *dst, bool is_src2dst);
+                       pcpp::TcpLayer *tcp_layer, HostPtr src, HostPtr dst,
+                       bool is_src2dst);
 
     inline u_int32_t GetSrcIp() const { return src_ip_; }
 
@@ -83,6 +84,8 @@ class Ip4TcpFlow : public BaseFlow {
      */
     u_int16_t dst_port_;
 };
+
+using Ip4TcpFlowPtr = std::shared_ptr<Ip4TcpFlow>;
 
 } // namespace gcap
 

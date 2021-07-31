@@ -1,5 +1,5 @@
 /*
- * processor.hpp
+ * host_store.cpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -21,51 +21,26 @@
  *
  */
 
-#ifndef __GCAP_PROCESSOR_H__
-#define __GCAP_PROCESSOR_H__
-
+#include "host_store.hpp"
 #include "ndpi_api.h"
-#include <pcap.h>
+#include <unordered_map>
 
 namespace gcap {
 
-/**
- * Pcap processor
- */
-class Processor {
-  public:
-    /**
-     * Open pcap file and return processor.
-     */
-    static Processor *OpenPcapFile(const char *pcap_file);
-
-    /**
-     * Open and listen network device and return processor.
-     */
-    static Processor *OpenDevice(const char *device);
-
-    /**
-     * Destructor
-     */
-    ~Processor();
-
-  private:
-    /**
-     * Constructor is private
-     */
-    Processor();
-
-    /**
-     * pcap handle
-     */
-    pcap_t *pcap_handle_;
-
-    /**
-     * nDPI detection module
-     */
-    struct ndpi_detection_module_struct *ndpi_module_;
-};
+HostPtr HostStore::GetIp4Host(const uint32_t &ip) {
+    auto itr = ip4_host_map_.find(ip);
+    if (itr != ip4_host_map_.end()) {
+        return itr->second;
+    }
+    HostPtr ptr((ndpi_id_struct *)calloc(1, SIZEOF_ID_STRUCT));
+    if (ptr.get() == NULL) {
+        return ptr;
+    }
+    auto ret = ip4_host_map_.insert(std::make_pair(ip, ptr));
+    if (ret.second == false) {
+        return HostPtr(NULL);
+    }
+    return ptr;
+}
 
 } // namespace gcap
-
-#endif

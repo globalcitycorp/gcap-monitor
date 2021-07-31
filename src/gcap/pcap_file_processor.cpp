@@ -40,6 +40,10 @@ PcapFileProcessor::PcapFileProcessor() {
     if (ndpi_module_ == NULL) {
         logger_.Err() << "ndpi_init_detection_module() error!" << std::endl;
     }
+    NDPI_PROTOCOL_BITMASK all;
+    NDPI_BITMASK_SET_ALL(all);
+    ndpi_set_protocol_detection_bitmask2(ndpi_module_, &all);
+    ndpi_finalize_initialization(ndpi_module_);
     reader_ = NULL;
 }
 
@@ -94,13 +98,13 @@ int PcapFileProcessor::Process() {
                 uint16_t src_port = tcp_layer->getSrcPort();
                 uint16_t dst_port = tcp_layer->getDstPort();
                 IpFlowKey key(vlan_id, src_ip, src_port, dst_ip, dst_port);
-                Ip4TcpFlow *flow = flow_store_.GetIp4TcpFlow(key);
+                Ip4TcpFlowPtr flow = flow_store_.GetIp4TcpFlow(key);
                 if (flow == NULL) {
                     logger_.Err() << "unable to allocate flow" << std::endl;
                     continue;
                 }
-                ndpi_id_struct *src = host_store_.GetIp4Host(flow->GetSrcIp());
-                ndpi_id_struct *dst = host_store_.GetIp4Host(flow->GetDstIp());
+                HostPtr src = host_store_.GetIp4Host(flow->GetSrcIp());
+                HostPtr dst = host_store_.GetIp4Host(flow->GetDstIp());
                 if (src == NULL || dst == NULL) {
                     logger_.Err() << "unable to allocate src or dst id struct"
                                   << std::endl;
@@ -112,6 +116,18 @@ int PcapFileProcessor::Process() {
                                     src, dst, is_src2dst);
             }
         }
+    }
+    auto ip4_tcp_map = flow_store_.GetIp4TcpMap();
+    for (auto itr = ip4_tcp_map.begin(); itr != ip4_tcp_map.end(); ++itr) {
+        std::cout << "Category: " << itr->second->GetCategoryName(ndpi_module_)
+                  << "; Master protocol: "
+                  << itr->second->GetMasterProtocolName(ndpi_module_)
+                  << "; App protocol: "
+                  << itr->second->GetAppProtocolName(ndpi_module_) << std::endl
+                  << "src2dst pkts: " << itr->second->GetSrc2DstPktCount()
+                  << ", bytes: " << itr->second->GetSrc2DstBytes() << std::endl
+                  << "dst2src pkts: " << itr->second->GetDst2SrcPktCount()
+                  << ", bytes: " << itr->second->GetDst2SrcBytes() << std::endl;
     }
     return 0;
 }
