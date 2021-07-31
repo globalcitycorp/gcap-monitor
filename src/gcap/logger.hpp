@@ -1,5 +1,5 @@
 /*
- * gcap_thread.h
+ * logger.hpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -20,14 +20,41 @@
  * along with nDPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifndef __GCAP_LOGGER_H__
+#define __GCAP_LOGGER_H__
 
-#include "gcap/flow_data.hpp"
-#include "gcap/flow_key.hpp"
-#include "gcap/processor.hpp"
-#include <map>
+#include <iostream>
 
-typedef struct ThreadArgStruct {
-    u_int32_t thread_id;
-    gcap::Processor *processor;
-    std::map<gcap::FlowKey, gcap::FlowData> *shared_flow_map;
-} ThreadArg;
+namespace gcap {
+
+/**
+ * Logger
+ *
+ */
+class Logger {
+  public:
+    /**
+     * Constructor
+     */
+    Logger() {}
+
+    /**
+     * Get error log stream
+     */
+    std::ostream &Err();
+
+    /**
+     * Get debug log stream
+     */
+    std::ostream &Dbg();
+
+  private:
+    /**
+     * Print timestamp
+     */
+    void PrintTimestamp(std::ostream &s);
+};
+
+} // namespace gcap
+
+#endif

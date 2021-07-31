@@ -21,6 +21,8 @@
  *
  */
 
+#include "gcap/logger.hpp"
+#include "gcap/pcap_file_processor.hpp"
 #include "ndpi_api.h"
 #include <getopt.h>
 #include <stdio.h>
@@ -29,8 +31,8 @@
 #define MAX_NUM_READER_THREADS 16
 
 typedef struct gcap_config {
-    char *interface;
-    char *pcap_file;
+    const char *interface;
+    const char *pcap_file;
     u_int8_t num_threads;
 } gcap_config_t;
 
@@ -38,6 +40,7 @@ static void parse_options(int argc, char **argv, gcap_config_t *cnf);
 
 int main(int argc, char **argv) {
     gcap_config_t cnf = {.interface = "", .pcap_file = "", .num_threads = 1};
+    gcap::Logger logger;
 
     if (ndpi_get_api_version() != NDPI_API_VERSION) {
         printf("nDPI Library version mismatch: "
@@ -48,13 +51,24 @@ int main(int argc, char **argv) {
     printf("Using nDPI (%s).\n", ndpi_revision());
 
     parse_options(argc, argv, &cnf);
-    if (strcmp(cnf.interface, "") == 0) {
-        printf("Please specify interface!\n");
+    if (strcmp(cnf.interface, "") == 0 && strcmp(cnf.pcap_file, "") == 0) {
+        printf("Please specify interface or pcap file!\n");
         return -1;
     }
 
-    printf("Listening interface %s with %d thread(s).\n", cnf.interface,
-           cnf.num_threads);
+    if (strcmp(cnf.pcap_file, "") != 0) {
+        logger.Dbg() << "Reading pcap file " << cnf.pcap_file << "..."
+                     << std::endl;
+        gcap::PcapFileProcessor *processor =
+            gcap::PcapFileProcessor::Open(cnf.pcap_file);
+        if (processor == NULL) {
+            logger.Err() << "Unable to open " << cnf.pcap_file << "."
+                         << std::endl;
+            return 1;
+        }
+        processor->Process();
+        delete processor;
+    }
 
     return 0;
 }

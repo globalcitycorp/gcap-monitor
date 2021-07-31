@@ -26,6 +26,7 @@
 
 #include "flow_store.hpp"
 #include "host_store.hpp"
+#include "logger.hpp"
 #include "ndpi_api.h"
 #include <PcapFileDevice.h>
 
@@ -78,6 +79,11 @@ class PcapFileProcessor {
      * Host store
      */
     HostStore host_store_;
+
+    /**
+     * Logger
+     */
+    Logger logger_;
 };
 
 } // namespace gcap

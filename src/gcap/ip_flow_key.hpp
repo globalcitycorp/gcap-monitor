@@ -47,7 +47,7 @@ class IpFlowKey {
      */
     IpFlowKey(const IpFlowKey &k)
         : vlan_id_(k.vlan_id_), src_ip_(k.src_ip_), src_port_(k.src_port_),
-          dst_ip_(k.dst_ip_), dst_port_(dst_port_) {
+          dst_ip_(k.dst_ip_), dst_port_(k.dst_port_) {
         hash_ = k.vlan_id_ + k.src_ip_ + k.dst_ip_ + k.src_port_ + k.dst_port_;
     }
 
@@ -56,19 +56,8 @@ class IpFlowKey {
      *
      * This is for using the instance as key in std::map.
      */
-    bool operator<(const IpFlowKey &r);
+    bool compareTo(const IpFlowKey &r) const;
 
-    inline u_int16_t GetVlanId() const { return vlan_id_; }
-
-    inline u_int32_t GetSrcIp() const { return src_ip_; }
-
-    inline u_int32_t GetDstIp() const { return dst_ip_; }
-
-    inline u_int16_t GetSrcPort() const { return src_port_; }
-
-    inline u_int16_t GetDstPort() const { return dst_port_; }
-
-  private:
     /**
      * VLAN id
      */
@@ -80,14 +69,14 @@ class IpFlowKey {
     u_int32_t src_ip_;
 
     /**
-     * Destination IP address
-     */
-    u_int32_t dst_ip_;
-
-    /**
      * Source port
      */
     u_int16_t src_port_;
+
+    /**
+     * Destination IP address
+     */
+    u_int32_t dst_ip_;
 
     /**
      * Destination port
@@ -100,37 +89,7 @@ class IpFlowKey {
     u_int32_t hash_;
 };
 
-/**
- * Operator <
- */
-bool IpFlowKey::operator<(const IpFlowKey &r) {
-    if (hash_ != r.hash_) {
-        return hash_ < r.hash_;
-    }
-    if (vlan_id_ != r.vlan_id_) {
-        return vlan_id_ < r.vlan_id_;
-    }
-    bool same = (src_ip_ == r.src_ip_ && src_port_ == r.src_port_ &&
-                 dst_ip_ == r.dst_ip_ && dst_port_ == r.dst_port_);
-    bool opposite = (src_ip_ == r.dst_ip_ && src_port_ == r.dst_port_ &&
-                     dst_ip_ == r.src_ip_ && dst_port_ == r.src_port_);
-    if (same || opposite) {
-        return false;
-    }
-    if (src_ip_ != r.src_ip_) {
-        return src_ip_ < r.src_ip_;
-    }
-    if (src_port_ != r.src_port_) {
-        return src_port_ < r.src_port_;
-    }
-    if (dst_ip_ != r.dst_ip_) {
-        return dst_ip_ < r.dst_ip_;
-    }
-    if (dst_port_ != r.dst_port_) {
-        return dst_port_ < r.dst_port_;
-    }
-    return false;
-}
+bool operator<(const gcap::IpFlowKey l, const gcap::IpFlowKey r);
 
 } // namespace gcap
 

@@ -62,11 +62,11 @@ ndpi_id_struct *HostStore::GetIp4Host(const uint32_t &ip) {
         return NULL;
     }
     std::unique_ptr<ndpi_id_struct> ptr(raw_ptr);
-    auto ret = ip4_host_map_.insert(make_pair(ip, ptr));
+    auto ret = ip4_host_map_.insert(std::make_pair(ip, std::move(ptr)));
     if (ret.second == false) {
         return NULL;
     }
-    return ptr.get();
+    return raw_ptr;
 }
 
 } // namespace gcap

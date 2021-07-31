@@ -53,18 +53,17 @@ Ip4TcpFlow *FlowStore::GetIp4TcpFlow(const IpFlowKey &key) {
     if (tcp_flow_map_.count(key) == 1) {
         return tcp_flow_map_.at(key).get();
     }
-    Ip4TcpFlow *raw_ptr =
-        new Ip4TcpFlow(key.GetVlanId(), key.GetSrcIp(), key.GetDstIp(),
-                       key.GetSrcPort(), key.GetDstPort());
+    Ip4TcpFlow *raw_ptr = new Ip4TcpFlow(key.vlan_id_, key.src_ip_, key.dst_ip_,
+                                         key.src_port_, key.dst_port_);
     if (raw_ptr == NULL) {
         return NULL;
     }
     std::unique_ptr<Ip4TcpFlow> ptr(raw_ptr);
-    auto ret = tcp_flow_map_.insert(make_pair(key, ptr));
+    auto ret = tcp_flow_map_.insert(std::make_pair(key, std::move(ptr)));
     if (ret.second == false) {
         return NULL;
     }
-    return ptr.get();
+    return raw_ptr;
 }
 
 } // namespace gcap

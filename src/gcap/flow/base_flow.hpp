@@ -106,6 +106,7 @@ bool BaseFlow::ProcessPacketCommon(const pcpp::Packet &pkt, bool is_src2dst) {
         dst2src_pkt_count_++;
         dst2src_bytes_ += pkt.getFirstLayer()->getDataLen();
     }
+    return true;
 }
 
 } // namespace gcap

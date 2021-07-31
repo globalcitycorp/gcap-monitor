@@ -22,8 +22,8 @@
  */
 
 #include "pcap_file_processor.hpp"
-#include "../util.h"
 #include "flow_store.hpp"
+#include "logger.hpp"
 #include "ndpi_api.h"
 #include <EthLayer.h>
 #include <IPv4Layer.h>
@@ -38,7 +38,7 @@ namespace gcap {
 PcapFileProcessor::PcapFileProcessor() {
     ndpi_module_ = ndpi_init_detection_module(ndpi_enable_ja3_plus);
     if (ndpi_module_ == NULL) {
-        LogDebug("ndpi_init_detection_module() error!");
+        logger_.Err() << "ndpi_init_detection_module() error!" << std::endl;
     }
     reader_ = NULL;
 }
@@ -63,7 +63,7 @@ PcapFileProcessor *PcapFileProcessor::Open(const char *pcap_file) {
     pcpp::IFileReaderDevice *reader =
         pcpp::IFileReaderDevice::getReader(pcap_file);
     if (!reader->open()) {
-        LogDebug("unable to open pcap file!");
+        p->logger_.Err() << "unable to open pcap file!" << std::endl;
         delete reader;
         return NULL;
     }
@@ -78,7 +78,7 @@ int PcapFileProcessor::Process() {
         pcpp::EthLayer *eth_layer = pkt.getLayerOfType<pcpp::EthLayer>();
         uint16_t vlan_id = 0;
         if (eth_layer == NULL) {
-            LogError("unable to find ethernet layer");
+            logger_.Err() << "unable to find ethernet layer" << std::endl;
             continue;
         }
         pcpp::VlanLayer *vlan_layer = pkt.getLayerOfType<pcpp::VlanLayer>();
@@ -96,13 +96,14 @@ int PcapFileProcessor::Process() {
                 IpFlowKey key(vlan_id, src_ip, src_port, dst_ip, dst_port);
                 Ip4TcpFlow *flow = flow_store_.GetIp4TcpFlow(key);
                 if (flow == NULL) {
-                    LogError("unable to allocate flow");
+                    logger_.Err() << "unable to allocate flow" << std::endl;
                     continue;
                 }
                 ndpi_id_struct *src = host_store_.GetIp4Host(flow->GetSrcIp());
                 ndpi_id_struct *dst = host_store_.GetIp4Host(flow->GetDstIp());
                 if (src == NULL || dst == NULL) {
-                    LogError("unable to allocate src or dst id struct");
+                    logger_.Err() << "unable to allocate src or dst id struct"
+                                  << std::endl;
                     continue;
                 }
                 bool is_src2dst = flow->IsSrc2DstDirection(src_ip, src_port,
@@ -112,6 +113,7 @@ int PcapFileProcessor::Process() {
             }
         }
     }
+    return 0;
 }
 
 } // namespace gcap

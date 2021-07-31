@@ -38,6 +38,7 @@ bool Ip4TcpFlow::ProcessPacket(ndpi_detection_module_struct *ndpi_module,
     detected_protocol_ = ndpi_detection_process_packet(
         ndpi_module, &ndpi_flow_, ipv4_layer->getDataPtr(),
         ipv4_layer->getDataLen(), ts_ms, src, dst);
+    return true;
 }
 
 } // namespace gcap
