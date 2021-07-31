@@ -46,7 +46,7 @@ class Logger {
     /**
      * Get debug log stream
      */
-    std::ostream &Dbg();
+    std::ostream &Dbg(const char *file_name, int line);
 
   private:
     /**

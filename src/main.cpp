@@ -57,8 +57,8 @@ int main(int argc, char **argv) {
     }
 
     if (strcmp(cnf.pcap_file, "") != 0) {
-        logger.Dbg() << "Reading pcap file " << cnf.pcap_file << "..."
-                     << std::endl;
+        logger.Dbg(__FILE__, __LINE__)
+            << "Reading pcap file " << cnf.pcap_file << "..." << std::endl;
         gcap::PcapFileProcessor *processor =
             gcap::PcapFileProcessor::Open(cnf.pcap_file);
         if (processor == NULL) {

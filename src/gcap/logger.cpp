@@ -30,9 +30,9 @@ std::ostream &gcap::Logger::Err() {
     return std::cerr << "[ERROR] ";
 }
 
-std::ostream &gcap::Logger::Dbg() {
+std::ostream &gcap::Logger::Dbg(const char *file_name, int line) {
     PrintTimestamp(std::cout);
-    return std::cout << "[DEBUG] ";
+    return std::cout << "[DEBUG] <" << file_name << ":" << line << "> ";
 }
 
 void gcap::Logger::PrintTimestamp(std::ostream &s) {

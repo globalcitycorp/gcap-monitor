@@ -1,5 +1,5 @@
 /*
- * pcap_file_processor.hpp
+ * pcap_base_processor.hpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -21,14 +21,13 @@
  *
  */
 
-#ifndef __GCAP_PCAP_FILE_PROCESSOR_H__
-#define __GCAP_PCAP_FILE_PROCESSOR_H__
+#ifndef __GCAP_PCAP_BASE_PROCESSOR_H__
+#define __GCAP_PCAP_BASE_PROCESSOR_H__
 
 #include "flow_store.hpp"
 #include "host_store.hpp"
 #include "logger.hpp"
 #include "ndpi_api.h"
-#include "pcap_base_processor.hpp"
 #include <PcapFileDevice.h>
 
 namespace gcap {
@@ -36,35 +35,46 @@ namespace gcap {
 /**
  * Pcap file processor
  */
-class PcapFileProcessor : public PcapBaseProcessor {
+class PcapBaseProcessor {
   public:
     /**
-     * Open pcap file and return processor.
+     * Destructor
      */
-    static PcapFileProcessor *Open(const char *pcap_file);
+    virtual ~PcapBaseProcessor();
 
     /**
      * Process packets
      *
+     * @param raw_pkt packet
      * @return 0 if process ended successfully.
      */
-    int Process();
+    int ProcessPacket(pcpp::RawPacket *raw_pkt);
+
+  protected:
+    /**
+     * Constructor
+     */
+    PcapBaseProcessor();
 
     /**
-     * Destructor
+     * nDPI detection module
      */
-    ~PcapFileProcessor();
-
-  private:
-    /**
-     * Constructor is private
-     */
-    PcapFileProcessor();
+    struct ndpi_detection_module_struct *ndpi_module_;
 
     /**
-     * pcap file reader
+     * Flow store
      */
-    pcpp::IFileReaderDevice *reader_;
+    FlowStore flow_store_;
+
+    /**
+     * Host store
+     */
+    HostStore host_store_;
+
+    /**
+     * Logger
+     */
+    Logger logger_;
 };
 
 } // namespace gcap
