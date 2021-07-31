@@ -39,16 +39,6 @@ bool Ip4TcpFlow::ProcessPacket(ndpi_detection_module_struct *ndpi_module,
         ndpi_module, &ndpi_flow_, ipv4_layer->getDataPtr(),
         ipv4_layer->getDataLen(), ts_ms, src.get(), dst.get());
 
-    // DEBUG
-    std::cout
-        << "Category: "
-        << ndpi_category_get_name(ndpi_module, detected_protocol_.category)
-        << "; Master protocol: "
-        << ndpi_get_proto_name(ndpi_module, detected_protocol_.master_protocol)
-        << "; App protocol: "
-        << ndpi_get_proto_name(ndpi_module, detected_protocol_.app_protocol)
-        << std::endl;
-
     return true;
 }
 

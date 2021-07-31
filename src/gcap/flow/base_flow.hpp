@@ -25,7 +25,6 @@
 
 #include "ndpi_api.h"
 #include <Packet.h>
-#include <iostream>
 
 namespace gcap {
 
@@ -35,7 +34,7 @@ namespace gcap {
 class BaseFlow {
 
   public:
-    virtual ~BaseFlow() { std::cout << "=BaseFlow()" << std::endl; }
+    virtual ~BaseFlow() {}
 
     /**
      * Get nDPI category name

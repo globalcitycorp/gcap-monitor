@@ -119,15 +119,21 @@ int PcapFileProcessor::Process() {
     }
     auto ip4_tcp_map = flow_store_.GetIp4TcpMap();
     for (auto itr = ip4_tcp_map.begin(); itr != ip4_tcp_map.end(); ++itr) {
-        std::cout << "Category: " << itr->second->GetCategoryName(ndpi_module_)
+        auto flow = itr->second;
+        std::cout << pcpp::IPv4Address(flow->GetSrcIp()).toString() << ":"
+                  << flow->GetSrcPort() << " -> "
+                  << pcpp::IPv4Address(flow->GetDstIp()).toString() << ":"
+                  << flow->GetDstPort() << std::endl
+                  << "Category: " << flow->GetCategoryName(ndpi_module_)
                   << "; Master protocol: "
-                  << itr->second->GetMasterProtocolName(ndpi_module_)
+                  << flow->GetMasterProtocolName(ndpi_module_)
                   << "; App protocol: "
-                  << itr->second->GetAppProtocolName(ndpi_module_) << std::endl
-                  << "src2dst pkts: " << itr->second->GetSrc2DstPktCount()
-                  << ", bytes: " << itr->second->GetSrc2DstBytes() << std::endl
-                  << "dst2src pkts: " << itr->second->GetDst2SrcPktCount()
-                  << ", bytes: " << itr->second->GetDst2SrcBytes() << std::endl;
+                  << flow->GetAppProtocolName(ndpi_module_) << std::endl
+                  << "src2dst pkts: " << flow->GetSrc2DstPktCount()
+                  << ", bytes: " << flow->GetSrc2DstBytes() << std::endl
+                  << "dst2src pkts: " << flow->GetDst2SrcPktCount()
+                  << ", bytes: " << flow->GetDst2SrcBytes() << std::endl
+                  << std::endl;
     }
     return 0;
 }
