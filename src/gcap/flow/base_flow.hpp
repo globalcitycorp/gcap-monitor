@@ -62,6 +62,16 @@ class BaseFlow {
     }
 
     /**
+     * Get timestamp of the first packet.
+     */
+    inline timespec GetFirstPktTs() { return first_pkt_ts_; }
+
+    /**
+     * Get timestamp of the last packet received.
+     */
+    inline timespec GetLastPktTs() { return last_pkt_ts_; }
+
+    /**
      * Get count of packets from source to destination direction
      */
     inline uint16_t GetSrc2DstPktCount() { return src2dst_pkt_count_; }

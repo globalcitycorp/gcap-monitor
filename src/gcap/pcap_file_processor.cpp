@@ -24,6 +24,7 @@
 #include "pcap_file_processor.hpp"
 #include "logger.hpp"
 #include "ndpi_api.h"
+#include "util.hpp"
 
 namespace gcap {
 
@@ -62,7 +63,11 @@ int PcapFileProcessor::Process() {
     auto ip4_tcp_map = flow_store_.GetIp4TcpMap();
     for (auto itr = ip4_tcp_map.begin(); itr != ip4_tcp_map.end(); ++itr) {
         auto flow = itr->second;
-        std::cout << pcpp::IPv4Address(flow->GetSrcIp()).toString() << ":"
+        std::cout << "First pkt time: " << FormatTimespec(flow->GetFirstPktTs())
+                  << std::endl
+                  << "Last pkt time:  " << FormatTimespec(flow->GetLastPktTs())
+                  << std::endl
+                  << pcpp::IPv4Address(flow->GetSrcIp()).toString() << ":"
                   << flow->GetSrcPort() << " -> "
                   << pcpp::IPv4Address(flow->GetDstIp()).toString() << ":"
                   << flow->GetDstPort() << std::endl
