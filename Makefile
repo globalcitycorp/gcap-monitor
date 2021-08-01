@@ -15,7 +15,7 @@ all: $(PROGRAM)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 $(PROGRAM): $(HEADERS) $(OBJECTS) src/main.cpp
-	$(CC) $(CFLAGS) -o $(PROGRAM) $(OBJECTS) src/main.cpp -l:libndpi.a -lgcrypt -l:libPcap++.a -l:libPacket++.a -l:libCommon++.a -lpcap
+	$(CC) $(CFLAGS) -pthread -o $(PROGRAM) $(OBJECTS) src/main.cpp -l:libndpi.a -lgcrypt -l:libPcap++.a -l:libPacket++.a -l:libCommon++.a -lpcap
 
 run: $(PROGRAM)
 	$(PROGRAM)

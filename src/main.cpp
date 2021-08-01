@@ -27,51 +27,15 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <thread>
 
 #define MAX_NUM_READER_THREADS 16
 
-typedef struct gcap_config {
+typedef struct GcapConfigStruct {
     const char *interface;
     const char *pcap_file;
     u_int8_t num_threads;
-} gcap_config_t;
-
-static void parse_options(int argc, char **argv, gcap_config_t *cnf);
-
-int main(int argc, char **argv) {
-    gcap_config_t cnf = {.interface = "", .pcap_file = "", .num_threads = 1};
-    gcap::Logger logger;
-
-    if (ndpi_get_api_version() != NDPI_API_VERSION) {
-        printf("nDPI Library version mismatch: "
-               "please make sure this code and the nDPI library are in sync\n");
-        return -1;
-    }
-
-    printf("Using nDPI (%s).\n", ndpi_revision());
-
-    parse_options(argc, argv, &cnf);
-    if (strcmp(cnf.interface, "") == 0 && strcmp(cnf.pcap_file, "") == 0) {
-        printf("Please specify interface or pcap file!\n");
-        return -1;
-    }
-
-    if (strcmp(cnf.pcap_file, "") != 0) {
-        logger.Dbg(__FILE__, __LINE__)
-            << "Reading pcap file " << cnf.pcap_file << "..." << std::endl;
-        gcap::PcapFileProcessor *processor =
-            gcap::PcapFileProcessor::Open(cnf.pcap_file);
-        if (processor == NULL) {
-            logger.Err() << "Unable to open " << cnf.pcap_file << "."
-                         << std::endl;
-            return 1;
-        }
-        processor->Process();
-        delete processor;
-    }
-
-    return 0;
-}
+} GcapConfig;
 
 static struct option long_opts[] = {
     {"interface", required_argument, NULL, 'i'},
@@ -83,7 +47,7 @@ static struct option long_opts[] = {
 /**
  * Parse options
  */
-void parse_options(int argc, char **argv, gcap_config_t *cnf) {
+void ParseOptions(int argc, char **argv, GcapConfig *cnf) {
     int option_idx = 0;
     int opt;
     int num_threads;
@@ -106,4 +70,48 @@ void parse_options(int argc, char **argv, gcap_config_t *cnf) {
         }
     }
     return;
+}
+
+/**
+ * Process pcap file.
+ */
+static void ProcessPcapFile(const char *pcap_file, gcap::Logger *logger);
+
+int main(int argc, char **argv) {
+    GcapConfig cnf = {.interface = "", .pcap_file = "", .num_threads = 1};
+    gcap::Logger logger;
+
+    if (ndpi_get_api_version() != NDPI_API_VERSION) {
+        printf("nDPI Library version mismatch: "
+               "please make sure this code and the nDPI library are in sync\n");
+        return -1;
+    }
+
+    printf("Using nDPI (%s).\n", ndpi_revision());
+
+    ParseOptions(argc, argv, &cnf);
+    if (strcmp(cnf.interface, "") == 0 && strcmp(cnf.pcap_file, "") == 0) {
+        printf("Please specify interface or pcap file!\n");
+        return -1;
+    }
+
+    if (strcmp(cnf.pcap_file, "") != 0) {
+        logger.Dbg(__FILE__, __LINE__)
+            << "Reading pcap file " << cnf.pcap_file << "..." << std::endl;
+        std::thread th_proc_file(ProcessPcapFile, cnf.pcap_file, &logger);
+        th_proc_file.join();
+    }
+
+    return 0;
+}
+
+void ProcessPcapFile(const char *pcap_file, gcap::Logger *logger) {
+    gcap::PcapFileProcessor *processor =
+        gcap::PcapFileProcessor::Open(pcap_file);
+    if (processor == NULL) {
+        logger->Err() << "Unable to open " << pcap_file << "." << std::endl;
+        return;
+    }
+    processor->Process();
+    delete processor;
 }
