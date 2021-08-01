@@ -23,6 +23,7 @@
 
 #include "gcap/logger.hpp"
 #include "gcap/pcap_file_processor.hpp"
+#include "gcap/writer/base_writer.hpp"
 #include "ndpi_api.h"
 #include <getopt.h>
 #include <stdio.h>
@@ -77,6 +78,11 @@ void ParseOptions(int argc, char **argv, GcapConfig *cnf) {
  */
 static void ProcessPcapFile(const char *pcap_file, gcap::Logger *logger);
 
+/**
+ * Writer out flow.
+ */
+static void OutputFlows(gcap::BaseWriter *writer);
+
 int main(int argc, char **argv) {
     GcapConfig cnf = {.interface = "", .pcap_file = "", .num_threads = 1};
     gcap::Logger logger;
@@ -115,3 +121,5 @@ void ProcessPcapFile(const char *pcap_file, gcap::Logger *logger) {
     processor->Process();
     delete processor;
 }
+
+void OutputFlows(gcap::BaseWriter *writer) {}
