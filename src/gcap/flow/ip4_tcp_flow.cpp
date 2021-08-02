@@ -40,7 +40,7 @@ bool Ip4TcpFlow::ProcessPacket(ndpi_detection_module_struct *ndpi_module,
     }
 
     if (!ndpi_flow_) {
-        return;
+        return false;
     }
 
     timespec ts = pkt.getRawPacket()->getPacketTimeStamp();
@@ -242,13 +242,19 @@ void Ip4TcpFlow::ProcessProtocolData() {
 }
 
 bool Ip4TcpFlow::Finalize(ndpi_detection_module_struct *ndpi_module) {
-    // check ndpi_flow_ is allocated
-    if (!detection_completed_ && ndpi_flow_) {
-        u_int8_t guessed;
-        UpdateDetectedProtocol(
-            ndpi_detection_giveup(ndpi_module, ndpi_flow_, 1, &guessed));
-        protocol_was_guessed_ = guessed ? true : false;
-        detection_completed_ = true;
+    bool ret = true;
+
+    if (!detection_completed_) {
+        // check ndpi_flow_ is allocated
+        if (ndpi_flow_) {
+            u_int8_t guessed;
+            UpdateDetectedProtocol(
+                ndpi_detection_giveup(ndpi_module, ndpi_flow_, 1, &guessed));
+            protocol_was_guessed_ = guessed ? true : false;
+            detection_completed_ = true;
+        } else {
+            ret = false;
+        }
     }
 
     if (!extra_dissection_completed_) {
@@ -259,6 +265,8 @@ bool Ip4TcpFlow::Finalize(ndpi_detection_module_struct *ndpi_module) {
     }
 
     SetNdpiNames(ndpi_module);
+
+    return ret;
 }
 
 } // namespace gcap

@@ -60,9 +60,11 @@ int PcapFileProcessor::Process() {
     while (reader_->getNextPacket(raw_pkt)) {
         ProcessPacket(&raw_pkt);
     }
+    logger_.Dbg(__FILE__, __LINE__) << "Here" << std::endl;
     auto ip4_tcp_map = flow_store_.GetIp4TcpMap();
     for (auto itr = ip4_tcp_map.begin(); itr != ip4_tcp_map.end(); ++itr) {
         auto flow = itr->second;
+        flow->Finalize(ndpi_module_);
         std::cout << "First pkt time: " << FormatTimespec(flow->GetFirstPktTs())
                   << std::endl
                   << "Last pkt time:  " << FormatTimespec(flow->GetLastPktTs())
@@ -71,11 +73,10 @@ int PcapFileProcessor::Process() {
                   << flow->GetSrcPort() << " -> "
                   << pcpp::IPv4Address(flow->GetDstIp()).toString() << ":"
                   << flow->GetDstPort() << std::endl
-                  << "Category: " << flow->GetCategoryName(ndpi_module_)
-                  << "; Master protocol: "
-                  << flow->GetMasterProtocolName(ndpi_module_)
-                  << "; App protocol: "
-                  << flow->GetAppProtocolName(ndpi_module_) << std::endl
+                  << "Category: " << flow->GetCategoryName()
+                  << "; Master protocol: " << flow->GetMasterProtocolName()
+                  << "; App protocol: " << flow->GetAppProtocolName()
+                  << std::endl
                   << "src2dst pkts: " << flow->GetSrc2DstPktCount()
                   << ", bytes: " << flow->GetSrc2DstBytes() << std::endl
                   << "dst2src pkts: " << flow->GetDst2SrcPktCount()
