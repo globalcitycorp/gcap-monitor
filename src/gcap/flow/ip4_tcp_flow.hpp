@@ -67,6 +67,11 @@ class Ip4TcpFlow : public BaseFlow {
                 dst_ip == dst_ip_ && dst_port == dst_port_);
     }
 
+    /**
+     * Finalize flow detection
+     */
+    bool Finalize(ndpi_detection_module_struct *ndpi_module) override;
+
   private:
     /**
      * Source IP address

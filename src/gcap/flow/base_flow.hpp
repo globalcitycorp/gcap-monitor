@@ -25,6 +25,7 @@
 
 #include "ndpi_api.h"
 #include <Packet.h>
+#include <string>
 
 namespace gcap {
 
@@ -39,27 +40,17 @@ class BaseFlow {
     /**
      * Get nDPI category name
      */
-    inline const char *
-    GetCategoryName(ndpi_detection_module_struct *ndpi_module) {
-        return ndpi_category_get_name(ndpi_module, detected_protocol_.category);
-    }
+    inline std::string GetCategoryName() { return category_name_; }
 
     /**
      * Get nDPI master protocol name
      */
-    inline const char *
-    GetMasterProtocolName(ndpi_detection_module_struct *ndpi_module) {
-        return ndpi_get_proto_name(ndpi_module,
-                                   detected_protocol_.master_protocol);
-    }
+    inline std::string GetMasterProtocolName() { return master_protocol_name_; }
 
     /**
      * Get nDPI app protocol name
      */
-    const char *GetAppProtocolName(ndpi_detection_module_struct *ndpi_module) {
-        return ndpi_get_proto_name(ndpi_module,
-                                   detected_protocol_.app_protocol);
-    }
+    inline std::string GetAppProtocolName() { return app_protocol_name_; }
 
     /**
      * Get timestamp of the first packet.
@@ -102,6 +93,11 @@ class BaseFlow {
      * Get bytes of the flow
      */
     inline uint16_t GetBytes() { return src2dst_bytes_ + dst2src_bytes_; }
+
+    /**
+     * Finalize flow detection
+     */
+    virtual bool Finalize(ndpi_detection_module_struct *ndpi_module) = 0;
 
   protected:
     /**
@@ -159,6 +155,23 @@ class BaseFlow {
      */
     bool extra_dissection_completed_;
 
+    bool protocol_was_guessed_;
+
+    /**
+     * nDPI category name
+     */
+    std::string category_name_;
+
+    /**
+     * nDPI master protocol name
+     */
+    std::string master_protocol_name_;
+
+    /**
+     * nDPI app protocol name
+     */
+    std::string app_protocol_name_;
+
     /**
      * Get detected protocol
      */
@@ -185,6 +198,11 @@ class BaseFlow {
      * Check if flow needs extra dissection.
      */
     bool NeedsExtraDissection(ndpi_detection_module_struct *ndpi_module);
+
+    /**
+     * Set nDPI category name and protocol names.
+     */
+    void SetNdpiNames(ndpi_detection_module_struct *ndpi_module);
 
   private:
     /**

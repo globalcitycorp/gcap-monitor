@@ -61,6 +61,7 @@ bool Ip4TcpFlow::ProcessPacket(ndpi_detection_module_struct *ndpi_module,
     }
 
     if (detection_completed_ && (!NeedsExtraDissection(ndpi_module))) {
+        // Update category by IP
         ndpi_fill_ip_protocol_category(ndpi_module, src_ip_, dst_ip_,
                                        GetDetectedProtocolPtr());
         ProcessProtocolData();
@@ -220,6 +221,25 @@ void Ip4TcpFlow::ProcessProtocolData() {
 
         break;
     } /* switch */
+}
+
+bool Ip4TcpFlow::Finalize(ndpi_detection_module_struct *ndpi_module) {
+    if (!detection_completed_) {
+        u_int8_t guessed;
+        UpdateDetectedProtocol(
+            ndpi_detection_giveup(ndpi_module, &ndpi_flow_, 1, &guessed));
+        protocol_was_guessed_ = guessed ? true : false;
+        detection_completed_ = true;
+    }
+
+    if (!extra_dissection_completed_) {
+        ndpi_fill_ip_protocol_category(ndpi_module, src_ip_, dst_ip_,
+                                       GetDetectedProtocolPtr());
+        ProcessProtocolData();
+        extra_dissection_completed_ = true;
+    }
+
+    SetNdpiNames(ndpi_module);
 }
 
 } // namespace gcap
