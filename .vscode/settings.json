@@ -68,6 +68,10 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "valarray": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "csignal": "cpp",
+        "strstream": "cpp",
+        "condition_variable": "cpp",
+        "mutex": "cpp"
     }
 }

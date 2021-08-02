@@ -24,9 +24,35 @@
 #include "ndpi_api.h"
 #include <Packet.h>
 
-gcap::BaseFlow::BaseFlow()
+namespace gcap {
+
+BaseFlow::BaseFlow()
     : first_pkt_ts_({0, 0}), last_pkt_ts_({0, 0}), src2dst_pkt_count_(0),
       dst2src_pkt_count_(0), src2dst_bytes_(0), dst2src_bytes_(0), vlan_id_(0),
       detected_protocol_(NDPI_PROTOCOL_NULL) {
     memset(&ndpi_flow_, 0, SIZEOF_FLOW_STRUCT);
 }
+
+bool BaseFlow::NeedsExtraDissection(ndpi_detection_module_struct *ndpi_module) {
+    return !extra_dissection_completed_ &&
+           ndpi_extra_dissection_possible(ndpi_module, &ndpi_flow_);
+}
+
+void BaseFlow::UpdateDetectedProtocol(ndpi_protocol proto) {
+    if (detected_protocol_.master_protocol == NDPI_PROTOCOL_UNKNOWN) {
+        detected_protocol_.master_protocol = proto.master_protocol;
+    }
+
+    if (detected_protocol_.app_protocol == NDPI_PROTOCOL_UNKNOWN ||
+        ((detected_protocol_.master_protocol ==
+          detected_protocol_.app_protocol) &&
+         (detected_protocol_.app_protocol != proto.app_protocol))) {
+        detected_protocol_.app_protocol = proto.app_protocol;
+    }
+
+    if (detected_protocol_.category == NDPI_PROTOCOL_CATEGORY_UNSPECIFIED) {
+        detected_protocol_.category = proto.category;
+    }
+}
+
+} // namespace gcap

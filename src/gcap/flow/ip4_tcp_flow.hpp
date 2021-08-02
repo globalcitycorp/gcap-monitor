@@ -28,6 +28,7 @@
 #include <IPv4Layer.h>
 #include <Packet.h>
 #include <TcpLayer.h>
+#include <string>
 
 namespace gcap {
 
@@ -44,6 +45,9 @@ class Ip4TcpFlow : public BaseFlow {
         : BaseFlow(), src_ip_(src_ip), dst_ip_(dst_ip), src_port_(src_port),
           dst_port_(dst_port) {}
 
+    /**
+     * Process packet
+     */
     bool ProcessPacket(ndpi_detection_module_struct *ndpi_module,
                        const pcpp::Packet &pkt, pcpp::IPv4Layer *ipv4_layer,
                        pcpp::TcpLayer *tcp_layer, HostPtr src, HostPtr dst,
@@ -83,6 +87,114 @@ class Ip4TcpFlow : public BaseFlow {
      * Destination port
      */
     u_int16_t dst_port_;
+
+    /**
+     * Host server name
+     */
+    std::string host_server_name_;
+
+    /**
+     * HTTP data
+     */
+    struct {
+        std::string last_url;
+        ndpi_http_method last_method;
+        std::string last_content_type;
+        u_int16_t last_return_code;
+    } http;
+
+    /**
+     * DNS data
+     */
+    struct {
+        std::string last_query;
+        std::string last_query_shadow;
+        u_int16_t last_query_type;
+        u_int16_t last_return_code;
+        bool invalid_chars_in_query;
+    } dns;
+
+    /**
+     * MDNS
+     */
+    struct {
+        std::string name;
+        std::string name_txt;
+        std::string ssid;
+        std::string answer;
+    } mdns;
+
+    /**
+     * SSDP
+     */
+    struct {
+        std::string location;
+    } ssdp;
+
+    /**
+     * BitTorrent
+     */
+    struct {
+        std::string hash;
+    } bittorrent;
+
+    /**
+     * NETBIOS
+     */
+    struct {
+        std::string name;
+    } netbios;
+
+    /**
+     * SSH
+     */
+    struct {
+        std::string client_signature;
+        std::string server_signature;
+        /**
+         * HASSH
+         * https://engineering.salesforce.com/open-sourcing-hassh-abed3ae5044c
+         */
+        struct {
+            std::string client_hash;
+            std::string server_hash;
+        } hassh;
+    } ssh;
+
+    /**
+     * TLS
+     */
+    struct {
+        u_int16_t tls_version;
+        u_int32_t not_before;
+        u_int32_t not_after;
+        std::string client_alpn;
+        std::string client_tls_supported_versions;
+        std::string issuer;
+        std::string subject;
+        std::string client_requested_server_name;
+        std::string server_names;
+        /**
+         * JA3 hash
+         * https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967
+         */
+        struct {
+            std::string client_hash;
+            std::string server_hash;
+            u_int16_t server_cipher;
+            ndpi_cipher_weakness server_unsafe_cipher;
+        } ja3;
+    } tls;
+
+    /**
+     * Collect data from DNS packet.
+     */
+    void CollectDnsData();
+
+    /**
+     * Collect data from them detected by nDPI
+     */
+    void ProcessProtocolData();
 };
 
 using Ip4TcpFlowPtr = std::shared_ptr<Ip4TcpFlow>;

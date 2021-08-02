@@ -150,14 +150,47 @@ class BaseFlow {
     ndpi_flow_struct ndpi_flow_;
 
     /**
-     * Detected protocol
+     * Whether detection completed or not
      */
-    ndpi_protocol detected_protocol_;
+    bool detection_completed_;
+
+    /**
+     * Whether extra dissection completed or not
+     */
+    bool extra_dissection_completed_;
+
+    /**
+     * Get detected protocol
+     */
+    inline ndpi_protocol GetDetectedProtocol() { return detected_protocol_; }
+
+    /**
+     * Get detected protocol to give to nDPI internal process.
+     */
+    inline ndpi_protocol *GetDetectedProtocolPtr() {
+        return &detected_protocol_;
+    }
+
+    /**
+     * Update detected protocol.
+     */
+    void UpdateDetectedProtocol(ndpi_protocol proto);
 
     /**
      * Common process
      */
     inline bool ProcessPacketCommon(const pcpp::Packet &pkt, bool is_src2dst);
+
+    /**
+     * Check if flow needs extra dissection.
+     */
+    bool NeedsExtraDissection(ndpi_detection_module_struct *ndpi_module);
+
+  private:
+    /**
+     * Detected protocol
+     */
+    ndpi_protocol detected_protocol_;
 };
 
 bool BaseFlow::ProcessPacketCommon(const pcpp::Packet &pkt, bool is_src2dst) {
