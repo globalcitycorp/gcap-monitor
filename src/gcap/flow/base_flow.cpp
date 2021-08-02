@@ -34,9 +34,18 @@ BaseFlow::BaseFlow()
     memset(&ndpi_flow_, 0, SIZEOF_FLOW_STRUCT);
 }
 
+BaseFlow::~BaseFlow() {
+    if (ndpi_flow_) {
+        ndpi_free_flow(ndpi_flow_);
+    }
+}
+
 bool BaseFlow::NeedsExtraDissection(ndpi_detection_module_struct *ndpi_module) {
+    if (!ndpi_flow_) {
+        return false;
+    }
     return !extra_dissection_completed_ &&
-           ndpi_extra_dissection_possible(ndpi_module, &ndpi_flow_);
+           ndpi_extra_dissection_possible(ndpi_module, ndpi_flow_);
 }
 
 void BaseFlow::UpdateDetectedProtocol(ndpi_protocol proto) {

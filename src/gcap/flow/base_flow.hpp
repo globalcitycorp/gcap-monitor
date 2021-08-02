@@ -35,7 +35,7 @@ namespace gcap {
 class BaseFlow {
 
   public:
-    virtual ~BaseFlow() {}
+    virtual ~BaseFlow();
 
     /**
      * Get nDPI category name
@@ -143,7 +143,7 @@ class BaseFlow {
     /**
      * nDPI flow struct
      */
-    ndpi_flow_struct ndpi_flow_;
+    ndpi_flow_struct *ndpi_flow_;
 
     /**
      * Whether detection completed or not

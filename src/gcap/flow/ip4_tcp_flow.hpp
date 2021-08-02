@@ -43,7 +43,12 @@ class Ip4TcpFlow : public BaseFlow {
     Ip4TcpFlow(u_int16_t vlan_id, u_int32_t src_ip, u_int32_t dst_ip,
                u_int64_t src_port, u_int64_t dst_port)
         : BaseFlow(), src_ip_(src_ip), dst_ip_(dst_ip), src_port_(src_port),
-          dst_port_(dst_port) {}
+          dst_port_(dst_port) {
+        void *ndpi_flow;
+        if ((ndpi_flow = calloc(1, SIZEOF_FLOW_STRUCT)) != NULL) {
+            ndpi_flow_ = (ndpi_flow_struct *)ndpi_flow;
+        }
+    }
 
     /**
      * Process packet
