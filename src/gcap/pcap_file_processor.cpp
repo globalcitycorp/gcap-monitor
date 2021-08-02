@@ -40,6 +40,7 @@ PcapFileProcessor::~PcapFileProcessor() {
 }
 
 PcapFileProcessor *PcapFileProcessor::Open(const char *pcap_file) {
+    LoggerPtr logger = Logger::GetInstance();
     PcapFileProcessor *p = new PcapFileProcessor();
     if (p->ndpi_module_ == NULL) {
         return NULL;
@@ -47,7 +48,7 @@ PcapFileProcessor *PcapFileProcessor::Open(const char *pcap_file) {
     pcpp::IFileReaderDevice *reader =
         pcpp::IFileReaderDevice::getReader(pcap_file);
     if (!reader->open()) {
-        p->logger_.Err() << "unable to open pcap file!" << std::endl;
+        logger->Write(Logger::Level::ERR, "unable to open pcap file!");
         delete reader;
         return NULL;
     }
@@ -56,11 +57,12 @@ PcapFileProcessor *PcapFileProcessor::Open(const char *pcap_file) {
 }
 
 int PcapFileProcessor::Process() {
+    LoggerPtr logger = Logger::GetInstance();
     pcpp::RawPacket raw_pkt;
     while (reader_->getNextPacket(raw_pkt)) {
         ProcessPacket(&raw_pkt);
     }
-    logger_.Dbg(__FILE__, __LINE__) << "Here" << std::endl;
+    logger->Write(Logger::Level::DEBUG, "Here!");
     auto ip4_tcp_map = flow_store_.GetIp4TcpMap();
     for (auto itr = ip4_tcp_map.begin(); itr != ip4_tcp_map.end(); ++itr) {
         auto flow = itr->second;

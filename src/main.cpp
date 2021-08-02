@@ -28,6 +28,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <thread>
 
 #define MAX_NUM_READER_THREADS 16
@@ -76,7 +77,7 @@ void ParseOptions(int argc, char **argv, GcapConfig *cnf) {
 /**
  * Process pcap file.
  */
-static void ProcessPcapFile(const char *pcap_file, gcap::Logger *logger);
+static void ProcessPcapFile(const char *pcap_file);
 
 /**
  * Writer out flow.
@@ -85,7 +86,8 @@ static void OutputFlows(gcap::BaseWriter *writer);
 
 int main(int argc, char **argv) {
     GcapConfig cnf = {.interface = "", .pcap_file = "", .num_threads = 1};
-    gcap::Logger logger;
+    gcap::Logger::Initialize();
+    gcap::LoggerPtr logger = gcap::Logger::GetInstance();
 
     if (ndpi_get_api_version() != NDPI_API_VERSION) {
         printf("nDPI Library version mismatch: "
@@ -102,20 +104,23 @@ int main(int argc, char **argv) {
     }
 
     if (strcmp(cnf.pcap_file, "") != 0) {
-        logger.Dbg(__FILE__, __LINE__)
-            << "Reading pcap file " << cnf.pcap_file << "..." << std::endl;
-        std::thread th_proc_file(ProcessPcapFile, cnf.pcap_file, &logger);
+        logger->Write(gcap::Logger::Level::DEBUG,
+                      std::string("Reading pcap file ") + cnf.pcap_file +
+                          "...");
+        std::thread th_proc_file(ProcessPcapFile, cnf.pcap_file);
         th_proc_file.join();
     }
 
     return 0;
 }
 
-void ProcessPcapFile(const char *pcap_file, gcap::Logger *logger) {
+void ProcessPcapFile(const char *pcap_file) {
+    gcap::LoggerPtr logger = gcap::Logger::GetInstance();
     gcap::PcapFileProcessor *processor =
         gcap::PcapFileProcessor::Open(pcap_file);
     if (processor == NULL) {
-        logger->Err() << "Unable to open " << pcap_file << "." << std::endl;
+        logger->Write(gcap::Logger::Level::ERR,
+                      std::string("Unable to open ") + pcap_file + ".");
         return;
     }
     processor->Process();

@@ -54,8 +54,6 @@ class FlowStore {
      * TCP flow map
      */
     std::map<IpFlowKey, Ip4TcpFlowPtr> tcp_flow_map_;
-
-    Logger logger_;
 };
 
 } // namespace gcap

@@ -24,8 +24,14 @@
 #define __GCAP_LOGGER_H__
 
 #include <iostream>
+#include <map>
+#include <memory>
+#include <string>
+#include <syslog.h>
 
 namespace gcap {
+
+using TargetType = int64_t;
 
 /**
  * Logger
@@ -33,27 +39,72 @@ namespace gcap {
  */
 class Logger {
   public:
-    /**
-     * Constructor
-     */
-    Logger() {}
+    enum class Target : TargetType {
+        DISABLED = 1,
+        STDOUT = 2,
+        STDERR = 4,
+        LOG_FILE = 8
+    };
+
+    enum class Level : int16_t {
+        DEBUG = LOG_DEBUG,
+        INFO = LOG_INFO,
+        NOTICE = LOG_NOTICE,
+        WARNING = LOG_WARNING,
+        ERR = LOG_ERR,
+        CRIT = LOG_CRIT,
+        ALERT = LOG_ALERT,
+        EMERG = LOG_EMERG
+    };
 
     /**
-     * Get error log stream
+     * Get logger instance
      */
-    std::ostream &Err();
+    static std::shared_ptr<Logger> GetInstance();
 
     /**
-     * Get debug log stream
+     * Initialize a singleton instance
      */
-    std::ostream &Dbg(const char *file_name, int line);
+    static void Initialize();
+
+    /**
+     * Write out message
+     */
+    void Write(Level level, std::string msg);
 
   private:
     /**
-     * Print timestamp
+     * Constructor
      */
-    void PrintTimestamp(std::ostream &s);
+    Logger() { target_ = Target::STDOUT; }
+
+    /**
+     * Target
+     */
+    Target target_;
+
+    std::map<Level, std::string> levelMap = {
+        {Level::DEBUG, "DEBUG"},   {Level::INFO, "INFO"},
+        {Level::NOTICE, "NOTICE"}, {Level::WARNING, "WARNING"},
+        {Level::ERR, "ERROR"},     {Level::CRIT, "CRITICAL"},
+        {Level::ALERT, "ALERT"},   {Level::EMERG, "EMERG"}};
 };
+
+using LoggerPtr = std::shared_ptr<Logger>;
+
+inline Logger::Target operator&(Logger::Target a, Logger::Target b) {
+    return static_cast<Logger::Target>(static_cast<TargetType>(a) &
+                                       static_cast<TargetType>(b));
+}
+
+inline Logger::Target operator|(Logger::Target a, Logger::Target b) {
+    return static_cast<Logger::Target>(static_cast<TargetType>(a) |
+                                       static_cast<TargetType>(b));
+}
+
+inline bool operator!(Logger::Target a) {
+    return a == static_cast<Logger::Target>(0);
+}
 
 } // namespace gcap
 

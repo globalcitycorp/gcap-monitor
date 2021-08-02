@@ -22,30 +22,31 @@
  */
 
 #include "logger.hpp"
+#include <chrono>
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 
-std::ostream &gcap::Logger::Err() {
-    PrintTimestamp(std::cerr);
-    return std::cerr << "[ERROR] ";
-}
+using std::chrono::system_clock;
 
-std::ostream &gcap::Logger::Dbg(const char *file_name, int line) {
-    PrintTimestamp(std::cout);
-    return std::cout << "[DEBUG] <" << file_name << ":" << line << "> ";
-}
+namespace gcap {
 
-void gcap::Logger::PrintTimestamp(std::ostream &s) {
-    time_t t = time(NULL);
-    const tm *localt = localtime(&t);
-    int y = localt->tm_year + 1900;
-    int m = localt->tm_mon + 1;
-    int d = localt->tm_mday;
-    int hr = localt->tm_hour;
-    int min = localt->tm_min;
-    int sec = localt->tm_sec;
-    s << y << (m < 10 ? "-0" : "-") << m << (d < 10 ? "-0" : "-") << d;
-    s << (hr < 10 ? " 0" : " ") << hr << (min < 10 ? ":0" : ":") << min
-      << (sec < 10 ? ":0" : ":") << sec;
-    s << " ";
-};
+static std::shared_ptr<Logger> log;
+
+void Logger::Initialize() { log = std::shared_ptr<Logger>(new Logger()); }
+
+LoggerPtr Logger::GetInstance() { return log; }
+
+void Logger::Write(Logger::Level level, std::string msg) {
+    std::time_t time = system_clock::to_time_t(system_clock::now());
+    struct tm *time_struct = std::localtime(&time);
+    char time_str[80];
+    strftime(time_str, 80, "%Y-%m-%d:%H:%M:%S %z ", time_struct);
+    std::string level_str =
+        std::string("[") + levelMap[level] + std::string("] ");
+
+    if (!!(this->target_ & Logger::Target::STDOUT)) {
+        std::cout << time_str << level_str << msg << std::endl;
+    }
+}
+} // namespace gcap

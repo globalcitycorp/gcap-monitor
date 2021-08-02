@@ -36,9 +36,11 @@
 namespace gcap {
 
 PcapBaseProcessor::PcapBaseProcessor() {
+    LoggerPtr logger = Logger::GetInstance();
     ndpi_module_ = ndpi_init_detection_module(ndpi_enable_ja3_plus);
     if (ndpi_module_ == NULL) {
-        logger_.Err() << "ndpi_init_detection_module() error!" << std::endl;
+        logger->Write(Logger::Level::ERR,
+                      "ndpi_init_detection_module() error!");
     }
     NDPI_PROTOCOL_BITMASK all;
     NDPI_BITMASK_SET_ALL(all);
@@ -53,11 +55,12 @@ PcapBaseProcessor::~PcapBaseProcessor() {
 }
 
 int PcapBaseProcessor::ProcessPacket(pcpp::RawPacket *raw_pkt_ptr) {
+    LoggerPtr logger = Logger::GetInstance();
     pcpp::Packet pkt(raw_pkt_ptr);
     pcpp::EthLayer *eth_layer = pkt.getLayerOfType<pcpp::EthLayer>();
     uint16_t vlan_id = 0;
     if (eth_layer == NULL) {
-        logger_.Err() << "unable to find ethernet layer" << std::endl;
+        logger->Write(Logger::Level::ERR, "unable to find ethernet layer");
         return 1;
     }
     pcpp::VlanLayer *vlan_layer = pkt.getLayerOfType<pcpp::VlanLayer>();
@@ -75,14 +78,14 @@ int PcapBaseProcessor::ProcessPacket(pcpp::RawPacket *raw_pkt_ptr) {
             IpFlowKey key(vlan_id, src_ip, src_port, dst_ip, dst_port);
             Ip4TcpFlowPtr flow = flow_store_.GetIp4TcpFlow(key);
             if (flow == NULL) {
-                logger_.Err() << "unable to allocate flow" << std::endl;
+                logger->Write(Logger::Level::ERR, "unable to allocate flow");
                 return 1;
             }
             HostPtr src = host_store_.GetIp4Host(flow->GetSrcIp());
             HostPtr dst = host_store_.GetIp4Host(flow->GetDstIp());
             if (src == NULL || dst == NULL) {
-                logger_.Err()
-                    << "unable to allocate src or dst id struct" << std::endl;
+                logger->Write(Logger::Level::ERR,
+                              "unable to allocate src or dst id struct");
                 return 1;
             }
             bool is_src2dst =

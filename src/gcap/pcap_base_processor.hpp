@@ -70,11 +70,6 @@ class PcapBaseProcessor {
      * Host store
      */
     HostStore host_store_;
-
-    /**
-     * Logger
-     */
-    Logger logger_;
 };
 
 } // namespace gcap
