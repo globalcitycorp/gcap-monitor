@@ -24,11 +24,13 @@
 #ifndef __GCAP_PCAP_FILE_PROCESSOR_H__
 #define __GCAP_PCAP_FILE_PROCESSOR_H__
 
+#include "flow/base_flow.hpp"
 #include "flow_store.hpp"
 #include "host_store.hpp"
 #include "logger.hpp"
 #include "ndpi_api.h"
 #include "pcap_base_processor.hpp"
+#include "queue.hpp"
 #include <PcapFileDevice.h>
 
 namespace gcap {
@@ -41,7 +43,8 @@ class PcapFileProcessor : public PcapBaseProcessor {
     /**
      * Open pcap file and return processor.
      */
-    static PcapFileProcessor *Open(const char *pcap_file);
+    static PcapFileProcessor *Open(const char *pcap_file,
+                                   Queue<BaseFlowPtr> *flow_queue);
 
     /**
      * Process packets
@@ -59,7 +62,7 @@ class PcapFileProcessor : public PcapBaseProcessor {
     /**
      * Constructor is private
      */
-    PcapFileProcessor();
+    PcapFileProcessor(Queue<BaseFlowPtr> *flow_queue);
 
     /**
      * pcap file reader

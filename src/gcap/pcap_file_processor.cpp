@@ -25,10 +25,14 @@
 #include "logger.hpp"
 #include "ndpi_api.h"
 #include "util.hpp"
+#include <memory>
 
 namespace gcap {
 
-PcapFileProcessor::PcapFileProcessor() : PcapBaseProcessor() { reader_ = NULL; }
+PcapFileProcessor::PcapFileProcessor(Queue<BaseFlowPtr> *flow_queue)
+    : PcapBaseProcessor(flow_queue) {
+    reader_ = NULL;
+}
 
 PcapFileProcessor::~PcapFileProcessor() {
     if (reader_) {
@@ -39,9 +43,10 @@ PcapFileProcessor::~PcapFileProcessor() {
     }
 }
 
-PcapFileProcessor *PcapFileProcessor::Open(const char *pcap_file) {
+PcapFileProcessor *PcapFileProcessor::Open(const char *pcap_file,
+                                           Queue<BaseFlowPtr> *flow_queue) {
     LoggerPtr logger = Logger::GetInstance();
-    PcapFileProcessor *p = new PcapFileProcessor();
+    PcapFileProcessor *p = new PcapFileProcessor(flow_queue);
     if (p->ndpi_module_ == NULL) {
         return NULL;
     }
@@ -57,33 +62,15 @@ PcapFileProcessor *PcapFileProcessor::Open(const char *pcap_file) {
 }
 
 int PcapFileProcessor::Process() {
-    LoggerPtr logger = Logger::GetInstance();
     pcpp::RawPacket raw_pkt;
     while (reader_->getNextPacket(raw_pkt)) {
         ProcessPacket(&raw_pkt);
     }
-    logger->Write(Logger::Level::DEBUG, "Here!");
     auto ip4_tcp_map = flow_store_.GetIp4TcpMap();
     for (auto itr = ip4_tcp_map.begin(); itr != ip4_tcp_map.end(); ++itr) {
         auto flow = itr->second;
         flow->Finalize(ndpi_module_);
-        std::cout << "First pkt time: " << FormatTimespec(flow->GetFirstPktTs())
-                  << std::endl
-                  << "Last pkt time:  " << FormatTimespec(flow->GetLastPktTs())
-                  << std::endl
-                  << pcpp::IPv4Address(flow->GetSrcIp()).toString() << ":"
-                  << flow->GetSrcPort() << " -> "
-                  << pcpp::IPv4Address(flow->GetDstIp()).toString() << ":"
-                  << flow->GetDstPort() << std::endl
-                  << "Category: " << flow->GetCategoryName()
-                  << "; Master protocol: " << flow->GetMasterProtocolName()
-                  << "; App protocol: " << flow->GetAppProtocolName()
-                  << std::endl
-                  << "src2dst pkts: " << flow->GetSrc2DstPktCount()
-                  << ", bytes: " << flow->GetSrc2DstBytes() << std::endl
-                  << "dst2src pkts: " << flow->GetDst2SrcPktCount()
-                  << ", bytes: " << flow->GetDst2SrcBytes() << std::endl
-                  << std::endl;
+        flow_queue_->enqueue(std::static_pointer_cast<BaseFlow>(flow));
     }
     return 0;
 }

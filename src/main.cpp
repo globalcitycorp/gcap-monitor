@@ -21,10 +21,14 @@
  *
  */
 
+#include "gcap/flow/base_flow.hpp"
 #include "gcap/logger.hpp"
 #include "gcap/pcap_file_processor.hpp"
+#include "gcap/queue.hpp"
 #include "gcap/writer/base_writer.hpp"
+#include "gcap/writer/stdout_writer.hpp"
 #include "ndpi_api.h"
+#include <csignal>
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +36,7 @@
 #include <thread>
 
 #define MAX_NUM_READER_THREADS 16
+#define FLOW_QUEUE_SIZE 1024
 
 typedef struct GcapConfigStruct {
     const char *interface;
@@ -77,12 +82,14 @@ void ParseOptions(int argc, char **argv, GcapConfig *cnf) {
 /**
  * Process pcap file.
  */
-static void ProcessPcapFile(const char *pcap_file);
+static void ProcessPcapFile(const char *pcap_file,
+                            gcap::Queue<gcap::BaseFlowPtr> *flow_queue);
 
 /**
  * Writer out flow.
  */
-static void OutputFlows(gcap::BaseWriter *writer);
+static void OutputFlows(gcap::BaseWriter *writer,
+                        gcap::Queue<gcap::BaseFlowPtr> *flow_queue);
 
 int main(int argc, char **argv) {
     GcapConfig cnf = {.interface = "", .pcap_file = "", .num_threads = 1};
@@ -103,21 +110,32 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+    gcap::Queue<gcap::BaseFlowPtr> flow_queue(FLOW_QUEUE_SIZE);
+
+    gcap::StdoutWriter *writer = new gcap::StdoutWriter();
+
+    std::thread th_write(OutputFlows, writer, &flow_queue);
+
     if (strcmp(cnf.pcap_file, "") != 0) {
         logger->Write(gcap::Logger::Level::DEBUG,
                       std::string("Reading pcap file ") + cnf.pcap_file +
                           "...");
-        std::thread th_proc_file(ProcessPcapFile, cnf.pcap_file);
+        std::thread th_proc_file(ProcessPcapFile, cnf.pcap_file, &flow_queue);
         th_proc_file.join();
     }
+
+    th_write.join();
+
+    delete writer;
 
     return 0;
 }
 
-void ProcessPcapFile(const char *pcap_file) {
+void ProcessPcapFile(const char *pcap_file,
+                     gcap::Queue<gcap::BaseFlowPtr> *flow_queue) {
     gcap::LoggerPtr logger = gcap::Logger::GetInstance();
     gcap::PcapFileProcessor *processor =
-        gcap::PcapFileProcessor::Open(pcap_file);
+        gcap::PcapFileProcessor::Open(pcap_file, flow_queue);
     if (processor == NULL) {
         logger->Write(gcap::Logger::Level::ERR,
                       std::string("Unable to open ") + pcap_file + ".");
@@ -127,4 +145,13 @@ void ProcessPcapFile(const char *pcap_file) {
     delete processor;
 }
 
-void OutputFlows(gcap::BaseWriter *writer) {}
+void OutputFlows(gcap::BaseWriter *writer,
+                 gcap::Queue<gcap::BaseFlowPtr> *flow_queue) {
+    while (true) {
+        gcap::BaseFlowPtr flow = flow_queue->dequeue();
+        if (flow.get() == NULL) {
+            break;
+        }
+        writer->WriteOut(flow);
+    }
+}

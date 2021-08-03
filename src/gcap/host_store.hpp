@@ -23,10 +23,13 @@
 #ifndef __GCAP_HOST_STORE_H__
 #define __GCAP_HOST_STORE_H__
 
-#include "common.hpp"
+#include "ndpi_api.h"
+#include <memory>
 #include <unordered_map>
 
 namespace gcap {
+
+using HostPtr = std::shared_ptr<ndpi_id_struct>;
 
 /**
  * Stores ndpi_id_struct

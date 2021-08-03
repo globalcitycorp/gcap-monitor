@@ -23,7 +23,6 @@
 #ifndef __GCAP_STDOUT_WRITER_H__
 #define __GCAP_STDOUT_WRITER_H__
 
-#include "../common.hpp"
 #include "../flow/flows.hpp"
 #include "base_writer.hpp"
 
@@ -49,7 +48,7 @@ class StdoutWriter : public BaseWriter {
      * @param flow Flow
      * @return result
      */
-    TypeResult WriteOut(Ip4TcpFlowPtr flow);
+    WriteResult WriteOutIp4TcpFlow(Ip4TcpFlowPtr flow);
 };
 
 } // namespace gcap

@@ -23,7 +23,6 @@
 #ifndef __GCAP_FLOW_STORE_H__
 #define __GCAP_FLOW_STORE_H__
 
-#include "common.hpp"
 #include "flow/ip4_tcp_flow.hpp"
 #include "ip_flow_key.hpp"
 #include "logger.hpp"

@@ -25,6 +25,7 @@
 
 #include "ndpi_api.h"
 #include <Packet.h>
+#include <memory>
 #include <string>
 
 namespace gcap {
@@ -226,6 +227,8 @@ bool BaseFlow::ProcessPacketCommon(const pcpp::Packet &pkt, bool is_src2dst) {
     }
     return true;
 }
+
+using BaseFlowPtr = std::shared_ptr<BaseFlow>;
 
 } // namespace gcap
 

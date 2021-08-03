@@ -1,5 +1,5 @@
 /*
- * base_writer.hpp
+ * pcap_base_processor.hpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -20,39 +20,55 @@
  * along with nDPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifndef __GCAP_BASE_WRITER_H__
-#define __GCAP_BASE_WRITER_H__
 
-#include "../flow/flows.hpp"
+#ifndef __GCAP_QUEUE_H__
+#define __GCAP_QUEUE_H__
+
+#include <condition_variable>
+#include <mutex>
+#include <queue>
 
 namespace gcap {
 
-using WriteResult = bool;
+template <typename T> class Queue {
 
-/**
- * Base writer class to output flow.
- */
-class BaseWriter {
   public:
     /**
      * Constructor
      */
-    BaseWriter() {}
+    explicit Queue(size_t capacity) : capacity_(capacity) {}
 
     /**
-     * Destructor
+     * Enqueue value
      */
-    virtual ~BaseWriter() {}
+    void enqueue(T val) {
+        std::unique_lock<std::mutex> lk(guard_);
+        not_full_.wait(lk, [this] { return queue_.size() < capacity_; });
+        queue_.push(val);
+        not_empty_.notify_all();
+    }
 
     /**
-     * Write out flow.
+     * Dequeue
      */
-    WriteResult WriteOut(BaseFlowPtr flow);
+    T dequeue() {
+        std::unique_lock<std::mutex> lock(guard_);
+        not_empty_.wait(lock, [this] { return !queue_.empty(); });
+        T ret = queue_.front();
+        queue_.pop();
+        not_full_.notify_all();
+        return ret;
+    }
 
+  private:
     /**
-     * Write out IPv4 TCP flow.
+     * Queue
      */
-    virtual WriteResult WriteOutIp4TcpFlow(Ip4TcpFlowPtr flow) = 0;
+    std::queue<T> queue_;
+    size_t capacity_;
+    std::mutex guard_;
+    std::condition_variable not_empty_;
+    std::condition_variable not_full_;
 };
 
 } // namespace gcap

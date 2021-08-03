@@ -35,7 +35,8 @@
 
 namespace gcap {
 
-PcapBaseProcessor::PcapBaseProcessor() {
+PcapBaseProcessor::PcapBaseProcessor(Queue<BaseFlowPtr> *flow_queue)
+    : flow_queue_(flow_queue) {
     LoggerPtr logger = Logger::GetInstance();
     ndpi_module_ = ndpi_init_detection_module(ndpi_enable_ja3_plus);
     if (ndpi_module_ == NULL) {

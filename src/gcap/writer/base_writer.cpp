@@ -1,5 +1,5 @@
 /*
- * common.hpp
+ * base_writer.cpp
  * Copyright (C) 2021-21 - Globalciy, Corp.
  *
  * This project is using nDPI.
@@ -20,16 +20,18 @@
  * along with nDPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifndef __GCAP_COMMON_H__
-#define __GCAP_COMMON_H__
 
-#include "ndpi_api.h"
-#include <memory>
+#include "base_writer.hpp"
+#include "../logger.hpp"
 
 namespace gcap {
 
-using HostPtr = std::shared_ptr<ndpi_id_struct>;
+WriteResult BaseWriter::WriteOut(BaseFlowPtr flow) {
+    Ip4TcpFlowPtr ipv4_tcp_flow = std::dynamic_pointer_cast<Ip4TcpFlow>(flow);
+    if (ipv4_tcp_flow.get() != NULL) {
+        return WriteOutIp4TcpFlow(ipv4_tcp_flow);
+    }
+    return true;
+};
 
 } // namespace gcap
-
-#endif

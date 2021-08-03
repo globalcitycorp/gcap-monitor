@@ -24,10 +24,12 @@
 #ifndef __GCAP_PCAP_BASE_PROCESSOR_H__
 #define __GCAP_PCAP_BASE_PROCESSOR_H__
 
+#include "flow/base_flow.hpp"
 #include "flow_store.hpp"
 #include "host_store.hpp"
 #include "logger.hpp"
 #include "ndpi_api.h"
+#include "queue.hpp"
 #include <PcapFileDevice.h>
 
 namespace gcap {
@@ -54,7 +56,7 @@ class PcapBaseProcessor {
     /**
      * Constructor
      */
-    PcapBaseProcessor();
+    explicit PcapBaseProcessor(Queue<BaseFlowPtr> *flow_queue);
 
     /**
      * nDPI detection module
@@ -70,6 +72,11 @@ class PcapBaseProcessor {
      * Host store
      */
     HostStore host_store_;
+
+    /**
+     * Flow queue
+     */
+    Queue<BaseFlowPtr> *flow_queue_;
 };
 
 } // namespace gcap

@@ -23,6 +23,7 @@
 #ifndef __GCAP_FLOWS_H__
 #define __GCAP_FLOWS_H__
 
+#include "base_flow.hpp"
 #include "ip4_tcp_flow.hpp"
 
 #endif

@@ -23,7 +23,7 @@
 #ifndef __IP4_TCP_FLOW_H__
 #define __IP4_TCP_FLOW_H__
 
-#include "../common.hpp"
+#include "../host_store.hpp"
 #include "base_flow.hpp"
 #include <IPv4Layer.h>
 #include <Packet.h>
